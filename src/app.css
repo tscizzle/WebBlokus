@@ -1,0 +1,9 @@
+.banner {
+  display: flex;
+  align-items: center;
+  margin: 0 200px;
+}
+
+.blokusPronunciation {
+  margin-left: 1em;
+}
