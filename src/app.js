@@ -41,9 +41,11 @@ class Arena extends Component {
   constructor(props) {
     super(props);
     this.blokus = blokus();
-    const selectedPlayer = _.find(this.blokus.players(), {id: 0});
-    const selectedPiece = _.find(this.blokus.pieces(), {id: 0, player: 0});
+    const board = this.blokus.board();
+    const selectedPlayer = _.find(this.blokus.players(), {id: 1});
+    const selectedPiece = _.find(this.blokus.pieces(), {id: 12, player: 1});
     this.state = {
+      board,
       selectedPlayer,
       selectedPiece,
     };
@@ -57,15 +59,27 @@ class Arena extends Component {
     // TODO: figure out setting the piece such that blank input is handled
   }
 
+  placeSelectedPiece = (player, piece, position) => {
+    var placed = this.blokus.place({
+      player: player,
+      piece: piece,
+      position: position
+    });
+    console.log(placed);
+    const board = this.blokus.board();
+    this.blokus.look();
+    this.setState({board: board});
+  }
+
   render() {
     const players = this.blokus.players();
     const availablePieces = this.blokus.availablePieces({player: this.state.selectedPlayer.id});
-    const board = this.blokus.board();
     const turns = this.blokus.turns();
     return (
       <div className="arena-container">
         <Board players={players}
-               board={board} />
+               board={this.state.board}
+               placeSelectedPiece={this.placeSelectedPiece} />
         <ControlPanel players={players}
                       pieces={availablePieces}
                       turns={turns}
@@ -83,13 +97,17 @@ class Arena extends Component {
 
 
 class Board extends Component {
+  placePiece = () => {
+    this.props.placeSelectedPiece(1, 1, {row: 0, col: 0});
+  }
+
   render() {
     const rowList = _.map(this.props.board, (row, rowIdx) => {
       return <Row players={this.props.players}
                   row={row}
                   key={rowIdx} />;
     });
-    return <div className="board-container"> {rowList} </div>
+    return <div className="board-container" onClick={this.placePiece}> {rowList} </div>
   }
 }
 
@@ -104,7 +122,7 @@ class Row extends Component {
     const cellList = _.map(this.props.row, (cell, colIdx) => {
       return (!_.isNull(cell) ? <PlayerCell playerID={cell}
                                             key={colIdx} />
-                              : <EmptyCell key={colIdx}/>);
+                              : <EmptyCell key={colIdx} />);
     });
     return <div className="board-row"> {cellList} </div>;
   }

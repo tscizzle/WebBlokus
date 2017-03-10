@@ -1,3 +1,5 @@
+/* Banner */
+
 .banner-container {
   display: flex;
   align-items: center;
@@ -14,11 +16,15 @@
   margin-left: 1em;
 }
 
+/* Arena */
+
 .arena-container {
   display: flex;
   justify-content: space-around;
   margin: 1em 5em 1em 10em;
 }
+
+/* Board */
 
 .board-container {
   display: flex;
@@ -40,9 +46,17 @@
   background-color: white;
 }
 
-.empty-cell {
-  background-color: white;
+.board-cell:hover {
+  background-color: red;
+  opacity: 0.5;
 }
+
+.control-panel-container .empty-cell {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* Players */
 
 .player-list-container {
   display: flex;
