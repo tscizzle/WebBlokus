@@ -42,8 +42,8 @@ class Arena extends Component {
     super(props);
     this.blokus = blokus();
     const board = this.blokus.board();
-    const selectedPlayer = _.find(this.blokus.players(), {id: 1});
-    const selectedPiece = _.find(this.blokus.pieces(), {id: 12, player: 1});
+    const selectedPlayer = _.find(this.blokus.players(), {id: 0});
+    const selectedPiece = _.find(this.blokus.pieces(), {id: 12, player: 0});
     this.state = {
       board,
       selectedPlayer,
@@ -59,10 +59,10 @@ class Arena extends Component {
     this.setState({selectedPiece: piece});
   }
 
-  placeSelectedPiece = (player, piece, position) => {
+  placeSelectedPiece = (position) => {
     var placed = this.blokus.place({
-      player: player,
-      piece: piece,
+      player: this.state.selectedPlayer.id,
+      piece: this.state.selectedPiece.id,
       position: position
     });
     console.log(placed);
@@ -98,7 +98,7 @@ class Arena extends Component {
 
 class Board extends Component {
   placePiece = () => {
-    this.props.placeSelectedPiece(1, 1, {row: 0, col: 0});
+    this.props.placeSelectedPiece({row: 0, col: 0});
   }
 
   render() {
@@ -114,6 +114,7 @@ class Board extends Component {
 Board.propTypes = {
   players: PropTypes.arrayOf(playerShape).isRequired,
   board: boardShape.isRequired,
+  placeSelectedPiece: PropTypes.func.isRequired,
 };
 
 
