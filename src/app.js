@@ -56,7 +56,7 @@ class Arena extends Component {
   }
 
   setSelectedPiece = piece => {
-    // TODO: figure out setting the piece such that blank input is handled
+    this.setState({selectedPiece: piece});
   }
 
   placeSelectedPiece = (player, piece, position) => {
@@ -159,21 +159,25 @@ class ControlPanel extends Component {
   }
 
   changeSelectedPiece = e => {
-    const selectedPiece = _.find(this.props.pieces, {id: e.target.value});
+    const pieceID = parseInt(e.target.value, 10);
+    const selectedPiece = _.find(this.props.pieces, {id: parseInt(e.target.value, 10)});
     this.props.setSelectedPiece(selectedPiece);
   }
 
   render() {
+    const selectedPieceID = (this.props.selectedPiece || {}).id || '';
     return (
       <div className="control-panel-container">
         <label>
           Piece
           <input type="number"
-                 value={this.props.selectedPiece.id}
+                 value={selectedPieceID}
                  onChange={this.changeSelectedPiece} />
         </label>
-        <PiecePreview players={this.props.players}
-                      selectedPiece={this.props.selectedPiece} />
+        {this.props.selectedPiece &&
+          <PiecePreview players={this.props.players}
+                        selectedPiece={this.props.selectedPiece} />
+        }
       </div>
     );
   }
@@ -184,7 +188,7 @@ ControlPanel.propTypes = {
   pieces: PropTypes.arrayOf(pieceShape).isRequired,
   turns: PropTypes.arrayOf(turnShape).isRequired,
   selectedPlayer: playerShape.isRequired,
-  selectedPiece: pieceShape.isRequired,
+  selectedPiece: pieceShape,
   setSelectedPlayer: PropTypes.func.isRequired,
   setSelectedPiece: PropTypes.func.isRequired,
 };
@@ -193,7 +197,6 @@ ControlPanel.propTypes = {
 class PiecePreview extends Component {
   render() {
     const playerID = this.props.selectedPiece.player;
-    console.log('playerID', playerID);
     const shape = this.props.selectedPiece.shape;
     const shapeBoard = _.map(shape, row => _.map(row, cell => cell === 'X' ? playerID : null));
     return <Board players={this.props.players}
