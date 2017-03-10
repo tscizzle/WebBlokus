@@ -1,9 +1,60 @@
-.banner {
+.banner-container {
   display: flex;
   align-items: center;
-  margin: 0 200px;
+  margin: 0 3em;
 }
 
-.blokusPronunciation {
+.banner-img {
+  height: 3em;
+  width: 3em;
+  margin-right: 2em;
+}
+
+.blokus-pronunciation {
   margin-left: 1em;
+}
+
+.arena-container {
+  display: flex;
+  justify-content: space-around;
+  margin: 1em 5em 1em 10em;
+}
+
+.board-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0.3em;
+  box-shadow: 2px 1px 1px #CCC;
+  background-color: #B69B4C;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  height: 1.5em;
+  width: 1.5em;
+  margin: 2px;
+  box-shadow: 2px 1px 1px #333;
+  background-color: white;
+}
+
+.empty-cell {
+  background-color: white;
+}
+
+.player-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-container {
+  margin: 1em;
+  padding: 1em;
+  cursor: pointer;
+}
+
+.selected-player {
+  box-shadow: 3px 3px 3px #CCC;
 }
