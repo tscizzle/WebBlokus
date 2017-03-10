@@ -65,9 +65,7 @@ class Arena extends Component {
       piece: this.state.selectedPiece.id,
       position,
     });
-    console.log(placed);
     const board = this.blokus.board();
-    this.blokus.look();
     this.setState({board: board});
   }
 
@@ -190,13 +188,14 @@ class ControlPanel extends Component {
   }
 
   render() {
-    const selectedPieceID = (this.props.selectedPiece || {}).id || '';
+    const selectedPieceID = (this.props.selectedPiece || {}).id;
+    const selectedPieceIDDisplay = _.isNumber(selectedPieceID) ? selectedPieceID : '';
     return (
       <div className="control-panel-container">
         <label>
           Piece
           <input type="number"
-                 value={selectedPieceID}
+                 value={selectedPieceIDDisplay}
                  onChange={this.changeSelectedPiece} />
         </label>
         {this.props.selectedPiece &&
