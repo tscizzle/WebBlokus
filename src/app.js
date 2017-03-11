@@ -62,7 +62,7 @@ class Arena extends Component {
     this.blokus.place({
       player: this.state.selectedPlayer.id,
       piece: this.state.selectedPiece.id,
-      position: position,
+      position,
     });
     const board = this.blokus.board();
     this.setState({board: board});
@@ -89,14 +89,13 @@ class Arena extends Component {
 
 
 class Board extends Component {
-  placePiece = () => {
-    this.props.placeSelectedPiece({row: 0, col: 0});
-  }
-
   render() {
     const rowList = _.map(this.props.board, (row, rowIdx) => {
-      return <Row row={row}
-                  key={rowIdx} />;
+      return <Row players={this.props.players}
+                  row={row}
+                  rowIdx={rowIdx}
+                  key={rowIdx}
+                  placeSelectedPiece={this.props.placeSelectedPiece} />;
     });
     const mainBoardClass = (_.isBoolean(this.props.isMainBoard) && this.props.isMainBoard) ? 'main-board' : '';
     const boardContainerProps = {
@@ -118,10 +117,11 @@ Board.propTypes = {
 
 class Row extends Component {
   render() {
-    const cellList = _.map(this.props.row, (cell, colIdx) => {
-      return (!_.isNull(cell) ? <PlayerCell playerID={cell}
-                                            key={colIdx} />
-                              : <EmptyCell key={colIdx} />);
+    const cellList = _.map(this.props.row, (playerID, colIdx) => {
+      return <Cell playerID={playerID}
+                   position={{row: this.props.rowIdx, col: colIdx}}
+                   placeSelectedPiece={this.props.placeSelectedPiece}
+                   key={colIdx} />;
     });
     return <div className="board-row"> {cellList} </div>;
   }
@@ -129,27 +129,52 @@ class Row extends Component {
 
 Row.propTypes = {
   row: PropTypes.arrayOf(PropTypes.number).isRequired,
+  rowIdx: PropTypes.number.isRequired,
+  placeSelectedPiece: PropTypes.func,
 };
 
+class Cell extends Component {
+  placeSelectedPiece = () => {
+    this.props.placeSelectedPiece(this.props.position);
+  }
 
-class PlayerCell extends Component {
+  render() {
+    return (!_.isNull(this.props.playerID)
+      ? <PlayerCell playerID={this.props.playerID}
+                    placeSelectedPiece={this.placeSelectedPiece}
+                    key={this.props.position.col} />
+      : <EmptyCell placeSelectedPiece={this.placeSelectedPiece}
+                   key={this.props.position.col} />);
+  }
+}
+
+Cell.propTypes = {
+  playerID: PropTypes.number,
+  position: PropTypes.shape({row: PropTypes.number.isRequired, col: PropTypes.number.isRequired}),
+  placeSelectedPiece: PropTypes.func,
+};
+
+class PlayerCell extends Cell {
   render() {
     const color = playerToColor[this.props.playerID];
-    return <div className="board-cell" style={{backgroundColor: color}}></div>;
+    return <div className="board-cell" style={{backgroundColor: color}} onClick={this.props.placeSelectedPiece}></div>;
   }
 }
 
 PlayerCell.propTypes = {
   playerID: PropTypes.number.isRequired,
+  placeSelectedPiece: PropTypes.func,
 };
 
-
-class EmptyCell extends Component {
+class EmptyCell extends Cell {
   render() {
-    return <div className="board-cell empty-cell"></div>;
+    return <div className="board-cell empty-cell" onClick={this.props.placeSelectedPiece}></div>;
   }
 }
 
+EmptyCell.propTypes = {
+  placeSelectedPiece: PropTypes.func,
+};
 
 class PieceList extends Component {
   render() {
