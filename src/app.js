@@ -2,8 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import './app.css';
 import { playerShape,
          pieceShape,
-         boardShape,
-         turnShape     } from './blokusObjects.js';
+         boardShape    } from './blokusObjects.js';
 import { playerToColor } from './playerColors.js';
 
 import _ from 'lodash';
@@ -82,19 +81,14 @@ class Arena extends Component {
   render() {
     const players = this.blokus.players();
     const availablePieces = this.blokus.availablePieces({player: this.state.selectedPlayer.id});
-    const turns = this.blokus.turns();
     return (
       <div className="arena-container">
-        <Board players={players}
-               board={this.state.board}
-               placeSelectedPiece={this.placeSelectedPiece} />
-        <ControlPanel players={players}
-                      pieces={availablePieces}
-                      turns={turns}
-                      selectedPlayer={this.state.selectedPlayer}
-                      selectedPiece={this.state.selectedPiece}
-                      setSelectedPlayer={this.setSelectedPlayer}
-                      setSelectedPiece={this.setSelectedPiece} />
+        <Board board={this.state.board}
+               placeSelectedPiece={this.placeSelectedPiece}
+               isMainBoard={true} />
+        <PieceList pieces={availablePieces}
+                   selectedPiece={this.state.selectedPiece}
+                   setSelectedPiece={this.setSelectedPiece} />
         <PlayerList players={players}
                     selectedPlayer={this.state.selectedPlayer}
                     setSelectedPlayer={this.setSelectedPlayer} />
@@ -113,14 +107,21 @@ class Board extends Component {
                   key={rowIdx}
                   placeSelectedPiece={this.props.placeSelectedPiece} />;
     });
-    return <div className="board-container"> {rowList} </div>
+    const mainBoardClass = (_.isBoolean(this.props.isMainBoard) && this.props.isMainBoard) ? 'main-board' : '';
+    const boardContainerProps = {
+      className: "board-container " + mainBoardClass,
+    };
+    if (this.props.placeSelectedPiece) {
+      boardContainerProps.onClick = this.placePiece;
+    };
+    return <div {...boardContainerProps}> {rowList} </div>
   }
 }
 
 Board.propTypes = {
-  players: PropTypes.arrayOf(playerShape).isRequired,
   board: boardShape.isRequired,
   placeSelectedPiece: PropTypes.func,
+  isMainBoard: PropTypes.bool,
 };
 
 
@@ -185,62 +186,50 @@ EmptyCell.propTypes = {
   placeSelectedPiece: PropTypes.func,
 };
 
-class ControlPanel extends Component {
-  changeSelectedPlayer = e => {
-    const selectedPlayer = _.find(this.props.players, {id: e.target.value});
-    this.props.setSelectedPlayer(selectedPlayer);
+class PieceList extends Component {
+  render() {
+    const sortedPieces = _.sortBy(this.props.pieces, piece => -piece.id);
+    const pieceList = _.map(sortedPieces, piece => {
+      return <Piece piece={piece}
+                    selectedPiece={this.props.selectedPiece}
+                    setSelectedPiece={this.props.setSelectedPiece}
+                    key={piece.id} />;
+    });
+    return <div className="piece-list-container"> {pieceList} </div>
   }
+}
 
-  changeSelectedPiece = e => {
-    const pieceID = parseInt(e.target.value, 10);
-    const selectedPiece = _.find(this.props.pieces, {id: parseInt(e.target.value, 10)});
-    this.props.setSelectedPiece(selectedPiece);
+PieceList.propTypes = {
+  pieces: PropTypes.arrayOf(pieceShape).isRequired,
+  selectedPiece: pieceShape.isRequired,
+  setSelectedPiece: PropTypes.func.isRequired,
+};
+
+
+class Piece extends Component {
+  clickPiece = () => {
+    this.props.setSelectedPiece(this.props.piece);
   }
 
   render() {
-    const selectedPieceID = (this.props.selectedPiece || {}).id;
-    const selectedPieceIDDisplay = _.isNumber(selectedPieceID) ? selectedPieceID : '';
+    const playerID = this.props.piece.player;
+    const shape = this.props.piece.shape;
+    const shapeBoard = _.map(shape, row => _.map(row, cell => cell === 'X' ? playerID : null));
+    const selected = this.props.piece.id === this.props.selectedPiece.id;
+    const selectedClass = selected ? 'selected-piece' : '';
     return (
-      <div className="control-panel-container">
-        <label>
-          Piece
-          <input type="number"
-                 value={selectedPieceIDDisplay}
-                 onChange={this.changeSelectedPiece} />
-        </label>
-        {this.props.selectedPiece &&
-          <PiecePreview players={this.props.players}
-                        selectedPiece={this.props.selectedPiece} />
-        }
+      <div className={"piece-container " + selectedClass}
+           onClick={this.clickPiece}>
+        <Board board={shapeBoard} />
       </div>
     );
   }
 }
 
-ControlPanel.propTypes = {
-  players: PropTypes.arrayOf(playerShape).isRequired,
-  pieces: PropTypes.arrayOf(pieceShape).isRequired,
-  turns: PropTypes.arrayOf(turnShape).isRequired,
-  selectedPlayer: playerShape.isRequired,
-  selectedPiece: pieceShape,
-  setSelectedPlayer: PropTypes.func.isRequired,
-  setSelectedPiece: PropTypes.func.isRequired,
-};
-
-
-class PiecePreview extends Component {
-  render() {
-    const playerID = this.props.selectedPiece.player;
-    const shape = this.props.selectedPiece.shape;
-    const shapeBoard = _.map(shape, row => _.map(row, cell => cell === 'X' ? playerID : null));
-    return <Board players={this.props.players}
-                  board={shapeBoard} />;
-  }
-}
-
-PiecePreview.propTypes = {
-  players: PropTypes.arrayOf(playerShape).isRequired,
+Piece.propTypes = {
+  piece: pieceShape.isRequired,
   selectedPiece: pieceShape.isRequired,
+  setSelectedPiece: PropTypes.func.isRequired,
 };
 
 
@@ -269,13 +258,12 @@ class Player extends Component {
   }
 
   render() {
-    const selected = this.props.player.id === this.props.selectedPlayer.id;
     const color = playerToColor[this.props.player.id];
-    const style = {border: "solid 1px " + color};
-    if (selected) style.backgroundColor = color;
+    const selected = this.props.player.id === this.props.selectedPlayer.id;
+    const selectedClass = selected ? 'selected-player' : '';
     return (
-      <div className={"player-container " + (selected ? "selected-player" : "")}
-           style={style}
+      <div className={"player-container " + selectedClass}
+           style={{backgroundColor: color}}
            onClick={this.clickPlayer}
            key={this.props.player.id}>
         <b> {this.props.player.name} </b>

@@ -1,5 +1,5 @@
 const green = "#5AF45A";
-const red = "red";
-const blue = "blue";
-const yellow = "yellow";
+const red = "#FF6961";
+const blue = "#779ECB";
+const yellow = "#FDFD96";
 export const playerToColor = [green, red, blue, yellow];
