@@ -58,6 +58,10 @@ class Arena extends Component {
     this.setState({selectedPiece: piece});
   }
 
+  setBoard = board => {
+    this.setState({board});
+  }
+
   placeSelectedPiece = (position) => {
     this.game.place({
       piece: this.state.selectedPiece.id,
