@@ -43,7 +43,7 @@ class Arena extends Component {
     this.blokus = blokus();
     const board = this.blokus.board();
     const selectedPlayer = _.find(this.blokus.players(), {id: 0});
-    const selectedPiece = _.find(this.blokus.pieces(), {id: 12, player: 0});
+    const selectedPiece = _.find(this.blokus.pieces(), {id: 0, player: 0});
     this.state = {
       board,
       selectedPlayer,
@@ -59,14 +59,24 @@ class Arena extends Component {
     this.setState({selectedPiece: piece});
   }
 
+  setBoard = board => {
+    this.setState({board});
+  }
+
   placeSelectedPiece = (position) => {
+    var selectedPlayerId = this.state.selectedPlayer.id;
     var placed = this.blokus.place({
-      player: this.state.selectedPlayer.id,
+      player: selectedPlayerId,
       piece: this.state.selectedPiece.id,
       position,
     });
-    const board = this.blokus.board();
-    this.setState({board: board});
+    if (placed.success) {
+      var nextPlayer = _.find(this.blokus.players(), {id: (selectedPlayerId + 1) % 4});
+      var nextPiece = _.find(this.blokus.pieces(), {id: 0, player: nextPlayer.id});
+      this.setSelectedPlayer(nextPlayer);
+      this.setSelectedPiece(nextPiece);
+      this.setBoard(this.blokus.board());
+    }
   }
 
   render() {
