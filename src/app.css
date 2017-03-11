@@ -31,13 +31,13 @@
   display: flex;
   flex-direction: column;
   padding: 0.3em;
-  box-shadow: 2px 1px 1px #CCC;
+  box-shadow: 0px 0px 20px #AAA;
   background-color: #B69B4C;
 }
 
 .main-board .board-cell:hover {
-  background-color: red;
-  opacity: 0.5;
+  background-color: #CCC;
+  cursor: pointer;
 }
 
 .board-row {
@@ -59,9 +59,10 @@
   flex-direction: column;
   align-items: center;
   max-height: 30em;
-  padding: 1em;
+  padding: 1em 0;
   overflow-y: scroll;
   background-color: white;
+  box-shadow: 0px 0px 20px #AAA;
 }
 
 .piece-list-container .empty-cell {
@@ -87,14 +88,20 @@
 .player-list-container {
   display: flex;
   flex-direction: column;
+  background-color: white;
+  box-shadow: 0px 0px 20px #AAA;
 }
 
 .player-container {
   margin: 1em;
   padding: 1em;
-  cursor: pointer;
+  cursor: default;
 }
 
-.selected-player {
-  box-shadow: 3px 3px 3px #CCC;
+.player-container:not(.selected-player):not(:hover) {
+  opacity: 0.7;
+}
+
+.player-container:not(.selected-player):hover {
+  cursor: pointer;
 }

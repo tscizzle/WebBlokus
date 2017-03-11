@@ -153,7 +153,8 @@ class EmptyCell extends Component {
 
 class PieceList extends Component {
   render() {
-    const pieceList = _.map(this.props.pieces, piece => {
+    const sortedPieces = _.sortBy(this.props.pieces, piece => -piece.id);
+    const pieceList = _.map(sortedPieces, piece => {
       return <Piece piece={piece}
                     selectedPiece={this.props.selectedPiece}
                     setSelectedPiece={this.props.setSelectedPiece}
@@ -223,12 +224,11 @@ class Player extends Component {
 
   render() {
     const color = playerToColor[this.props.player.id];
-    const style = {border: "solid 1px " + color};
     const selected = this.props.player.id === this.props.selectedPlayer.id;
-    if (selected) style.backgroundColor = color;
+    const selectedClass = selected ? 'selected-player' : '';
     return (
-      <div className={"player-container " + (selected ? "selected-player" : "")}
-           style={style}
+      <div className={"player-container " + selectedClass}
+           style={{backgroundColor: color}}
            onClick={this.clickPlayer}
            key={this.props.player.id}>
         <b> {this.props.player.name} </b>
