@@ -41,17 +41,13 @@ class Arena extends Component {
     super(props);
     this.game = game();
     const board = this.game.board();
-    const selectedPlayer = _.find(this.game.players(), {id: 0});
-    const selectedPiece = _.find(this.game.pieces(), {id: 20, player: 0});
+    const currentPlayer = this.game.currentPlayer();
+    const selectedPiece = _.find(this.game.pieces(), {id: 20, player: currentPlayer.id});
     this.state = {
       board,
-      selectedPlayer,
+      currentPlayer,
       selectedPiece,
     };
-  }
-
-  setSelectedPlayer = player => {
-    if (player) this.setState({selectedPlayer: player});
   }
 
   setSelectedPiece = piece => {
@@ -68,12 +64,16 @@ class Arena extends Component {
       position,
     });
     const board = this.game.board();
-    this.setState({board: board});
+    const currentPlayer = this.game.currentPlayer();
+    this.setState({
+      board,
+      currentPlayer,
+    });
   }
 
   render() {
     const players = this.game.players();
-    const availablePieces = this.game.availablePieces({player: this.state.selectedPlayer.id});
+    const availablePieces = this.game.availablePieces({player: this.state.currentPlayer.id});
     return (
       <div className="arena-container">
         <Board board={this.state.board}
@@ -83,8 +83,7 @@ class Arena extends Component {
                    selectedPiece={this.state.selectedPiece}
                    setSelectedPiece={this.setSelectedPiece} />
         <PlayerList players={players}
-                    selectedPlayer={this.state.selectedPlayer}
-                    setSelectedPlayer={this.setSelectedPlayer} />
+                    currentPlayer={this.state.currentPlayer} />
       </div>
     );
   }
@@ -229,8 +228,7 @@ class PlayerList extends Component {
   render() {
     const playerList = _.map(this.props.players, player => {
       return <Player player={player}
-                     selectedPlayer={this.props.selectedPlayer}
-                     setSelectedPlayer={this.props.setSelectedPlayer}
+                     currentPlayer={this.props.currentPlayer}
                      key={player.id} />;
     });
     return <div className="player-list-container"> {playerList} </div>;
@@ -239,24 +237,18 @@ class PlayerList extends Component {
 
 PlayerList.propTypes = {
   players: PropTypes.arrayOf(playerShape).isRequired,
-  selectedPlayer: playerShape.isRequired,
-  setSelectedPlayer: PropTypes.func.isRequired,
+  currentPlayer: playerShape.isRequired,
 };
 
 
 class Player extends Component {
-  clickPlayer = () => {
-    this.props.setSelectedPlayer(this.props.player);
-  }
-
   render() {
     const color = playerToColor[this.props.player.id];
-    const selected = this.props.player.id === this.props.selectedPlayer.id;
+    const selected = this.props.player.id === this.props.currentPlayer.id;
     const selectedClass = selected ? 'selected-player' : '';
     return (
       <div className={"player-container " + selectedClass}
            style={{backgroundColor: color}}
-           onClick={this.clickPlayer}
            key={this.props.player.id}>
         <b> {this.props.player.name} </b>
       </div>
@@ -266,8 +258,7 @@ class Player extends Component {
 
 Player.propTypes = {
   player: playerShape.isRequired,
-  selectedPlayer: playerShape.isRequired,
-  setSelectedPlayer: PropTypes.func.isRequired,
+  currentPlayer: playerShape.isRequired,
 };
 
 

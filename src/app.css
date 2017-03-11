@@ -99,10 +99,6 @@
   cursor: default;
 }
 
-.player-container:not(.selected-player):not(:hover) {
+.player-container:not(.selected-player) {
   opacity: 0.7;
-}
-
-.player-container:not(.selected-player):hover {
-  cursor: pointer;
 }
