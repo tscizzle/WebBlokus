@@ -6,7 +6,7 @@ import { playerShape,
 import { playerToColor } from './playerColors.js';
 
 import _ from 'lodash';
-import blokus from 'blokus';
+import { game } from 'blokus';
 
 
 class App extends Component {
@@ -39,10 +39,10 @@ class Banner extends Component {
 class Arena extends Component {
   constructor(props) {
     super(props);
-    this.blokus = blokus();
-    const board = this.blokus.board();
-    const selectedPlayer = _.find(this.blokus.players(), {id: 0});
-    const selectedPiece = _.find(this.blokus.pieces(), {id: 20, player: 0});
+    this.game = game();
+    const board = this.game.board();
+    const selectedPlayer = _.find(this.game.players(), {id: 0});
+    const selectedPiece = _.find(this.game.pieces(), {id: 20, player: 0});
     this.state = {
       board,
       selectedPlayer,
@@ -59,18 +59,17 @@ class Arena extends Component {
   }
 
   placeSelectedPiece = (position) => {
-    this.blokus.place({
-      player: this.state.selectedPlayer.id,
+    this.game.place({
       piece: this.state.selectedPiece.id,
       position,
     });
-    const board = this.blokus.board();
+    const board = this.game.board();
     this.setState({board: board});
   }
 
   render() {
-    const players = this.blokus.players();
-    const availablePieces = this.blokus.availablePieces({player: this.state.selectedPlayer.id});
+    const players = this.game.players();
+    const availablePieces = this.game.availablePieces({player: this.state.selectedPlayer.id});
     return (
       <div className="arena-container">
         <Board board={this.state.board}
@@ -94,17 +93,12 @@ class Board extends Component {
       return <Row players={this.props.players}
                   row={row}
                   rowIdx={rowIdx}
-                  key={rowIdx}
-                  placeSelectedPiece={this.props.placeSelectedPiece} />;
+                  isMainBoard={this.props.isMainBoard}
+                  placeSelectedPiece={this.props.placeSelectedPiece}
+                  key={rowIdx} />;
     });
     const mainBoardClass = (_.isBoolean(this.props.isMainBoard) && this.props.isMainBoard) ? 'main-board' : '';
-    const boardContainerProps = {
-      className: "board-container " + mainBoardClass,
-    };
-    if (this.props.placeSelectedPiece) {
-      boardContainerProps.onClick = this.placePiece;
-    };
-    return <div {...boardContainerProps}> {rowList} </div>
+    return <div className={"board-container " + mainBoardClass}> {rowList} </div>
   }
 }
 
@@ -135,16 +129,20 @@ Row.propTypes = {
 
 class Cell extends Component {
   placeSelectedPiece = () => {
-    this.props.placeSelectedPiece(this.props.position);
+    if (this.props.placeSelectedPiece) {
+      this.props.placeSelectedPiece(this.props.position);
+    }
   }
 
   render() {
-    return (!_.isNull(this.props.playerID)
-      ? <PlayerCell playerID={this.props.playerID}
-                    placeSelectedPiece={this.placeSelectedPiece}
-                    key={this.props.position.col} />
-      : <EmptyCell placeSelectedPiece={this.placeSelectedPiece}
-                   key={this.props.position.col} />);
+    return (
+      !_.isNull(this.props.playerID)
+        ? <PlayerCell playerID={this.props.playerID}
+                      placeSelectedPiece={this.placeSelectedPiece}
+                      key={this.props.position.col} />
+        : <EmptyCell placeSelectedPiece={this.placeSelectedPiece}
+                     key={this.props.position.col} />
+    );
   }
 }
 
