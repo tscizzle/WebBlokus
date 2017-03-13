@@ -130,6 +130,7 @@ Row.propTypes = {
   placeSelectedPiece: PropTypes.func,
 };
 
+
 class Cell extends Component {
   placeSelectedPiece = () => {
     if (this.props.placeSelectedPiece) {
@@ -155,6 +156,7 @@ Cell.propTypes = {
   placeSelectedPiece: PropTypes.func,
 };
 
+
 class PlayerCell extends Cell {
   render() {
     const color = playerToColor[this.props.playerID];
@@ -167,6 +169,7 @@ PlayerCell.propTypes = {
   placeSelectedPiece: PropTypes.func,
 };
 
+
 class EmptyCell extends Cell {
   render() {
     return <div className="board-cell empty-cell" onClick={this.props.placeSelectedPiece}></div>;
@@ -176,6 +179,7 @@ class EmptyCell extends Cell {
 EmptyCell.propTypes = {
   placeSelectedPiece: PropTypes.func,
 };
+
 
 class PieceList extends Component {
   render() {
@@ -221,6 +225,8 @@ Piece.propTypes = {
   piece: pieceShape.isRequired,
   selectedPiece: pieceShape.isRequired,
   setSelectedPiece: PropTypes.func.isRequired,
+  flipped: PropTypes.bool,
+  rotations: PropTypes.number,
 };
 
 
