@@ -1,12 +1,16 @@
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
+import { FaRotateLeft,
+         FaArrowsH     } from 'react-icons/lib/fa';
+
+import { game, transform } from 'blokus';
+const { flip, rotate } = transform;
+
 import './app.css';
 import { playerShape,
          pieceShape,
          boardShape    } from './blokusObjects.js';
 import { playerToColor } from './playerColors.js';
-
-import _ from 'lodash';
-import { game } from 'blokus';
 
 
 class App extends Component {
@@ -47,20 +51,32 @@ class Arena extends Component {
       board,
       currentPlayer,
       selectedPiece,
+      selectedFlipped: false,
+      selectedRotations: 0,
     };
-  }
-
-  setSelectedPiece = piece => {
-    this.setState({selectedPiece: piece});
   }
 
   setBoard = board => {
     this.setState({board});
   }
 
+  setSelectedPiece = piece => {
+    this.setState({selectedPiece: piece});
+  }
+
+  setSelectedFlipped = flipped => {
+    this.setState({selectedFlipped: flipped});
+  }
+
+  setSelectedRotations = rotations => {
+    this.setState({selectedRotations: rotations});
+  }
+
   placeSelectedPiece = (position) => {
     this.game.place({
       piece: this.state.selectedPiece.id,
+      flipped: this.state.selectedFlipped,
+      rotations: this.state.selectedRotations,
       position,
     });
     const board = this.game.board();
@@ -79,9 +95,17 @@ class Arena extends Component {
         <Board board={this.state.board}
                placeSelectedPiece={this.placeSelectedPiece}
                isMainBoard={true} />
-        <PieceList pieces={availablePieces}
-                   selectedPiece={this.state.selectedPiece}
-                   setSelectedPiece={this.setSelectedPiece} />
+        <div className="piece-control-container">
+          <PieceList pieces={availablePieces}
+                     selectedPiece={this.state.selectedPiece}
+                     flipped={this.state.selectedFlipped}
+                     rotations={this.state.selectedRotations}
+                     setSelectedPiece={this.setSelectedPiece} />
+          <PieceTransform flipped={this.state.selectedFlipped}
+                          rotations={this.state.selectedRotations}
+                          setSelectedFlipped={this.setSelectedFlipped}
+                          setSelectedRotations={this.setSelectedRotations} />
+        </div>
         <PlayerList players={players}
                     currentPlayer={this.state.currentPlayer} />
       </div>
@@ -187,6 +211,8 @@ class PieceList extends Component {
     const pieceList = _.map(sortedPieces, piece => {
       return <Piece piece={piece}
                     selectedPiece={this.props.selectedPiece}
+                    flipped={this.props.flipped}
+                    rotations={this.props.rotations}
                     setSelectedPiece={this.props.setSelectedPiece}
                     key={piece.id} />;
     });
@@ -197,6 +223,8 @@ class PieceList extends Component {
 PieceList.propTypes = {
   pieces: PropTypes.arrayOf(pieceShape).isRequired,
   selectedPiece: pieceShape.isRequired,
+  flipped: PropTypes.bool.isRequired,
+  rotations: PropTypes.number.isRequired,
   setSelectedPiece: PropTypes.func.isRequired,
 };
 
@@ -209,7 +237,9 @@ class Piece extends Component {
   render() {
     const playerID = this.props.piece.player;
     const shape = this.props.piece.shape;
-    const shapeBoard = _.map(shape, row => _.map(row, cell => cell === 'X' ? playerID : null));
+    const flippedShape = this.props.flipped ? flip(shape) : shape;
+    const flippedRotatedShape = rotate(flippedShape, this.props.rotations);
+    const shapeBoard = _.map(flippedRotatedShape, row => _.map(row, cell => cell === 'X' ? playerID : null));
     const selected = this.props.piece.id === this.props.selectedPiece.id;
     const selectedClass = selected ? 'selected-piece' : '';
     return (
@@ -227,6 +257,41 @@ Piece.propTypes = {
   setSelectedPiece: PropTypes.func.isRequired,
   flipped: PropTypes.bool,
   rotations: PropTypes.number,
+};
+
+
+class PieceTransform extends Component {
+  toggleFlipped = () => {
+    const newFlipped = !this.props.flipped;
+    this.props.setSelectedFlipped(newFlipped);
+  }
+
+  incrementRotations = () => {
+    const newRotations = (this.props.rotations + 1) % 4;
+    this.props.setSelectedRotations(newRotations);
+  }
+
+  render() {
+    return (
+      <div className="piece-transform-container">
+        <div className="piece-transform-icon"
+             onClick={this.toggleFlipped}>
+          <FaArrowsH size={30} />
+        </div>
+        <div className="piece-transform-icon"
+             onClick={this.incrementRotations}>
+          <FaRotateLeft size={30} />
+        </div>
+      </div>
+    );
+  }
+}
+
+PieceTransform.propTypes = {
+  flipped: PropTypes.bool.isRequired,
+  rotations: PropTypes.number.isRequired,
+  setSelectedFlipped: PropTypes.func.isRequired,
+  setSelectedRotations: PropTypes.func.isRequired,
 };
 
 
