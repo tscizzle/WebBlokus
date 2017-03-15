@@ -16,13 +16,15 @@ export const pieceShape = PropTypes.shape({
 
 export const boardShape = PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number));
 
+export const positionShape = PropTypes.shape({
+  row: PropTypes.number.isRequired,
+  col: PropTypes.number.isRequired,
+});
+
 export const turnShape = PropTypes.shape({
   player: PropTypes.number.isRequired,
   piece: PropTypes.number.isRequired,
   flipped: PropTypes.bool,
   rotations: PropTypes.number,
-  position: PropTypes.shape({
-    row: PropTypes.number.isRequired,
-    col: PropTypes.number.isRequired,
-  }),
+  position: positionShape.isRequired,
 });
