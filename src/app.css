@@ -35,7 +35,7 @@
   background-color: #B69B4C;
 }
 
-.main-board .board-cell:hover {
+.main-board .board-cell.highlighted {
   background-color: #CCC;
   cursor: pointer;
 }

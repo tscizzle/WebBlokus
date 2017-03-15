@@ -53,6 +53,7 @@ class Arena extends Component {
       selectedPiece,
       selectedFlipped: false,
       selectedRotations: 0,
+      highlightedPieces: [],
     };
   }
 
@@ -72,8 +73,12 @@ class Arena extends Component {
     this.setState({selectedRotations: rotations});
   }
 
-  placeSelectedPiece = (position) => {
-    this.game.place({
+  setHighlightedPieces = pieces => {
+    this.setState({highlightedPieces: pieces})
+  }
+
+  placeSelectedPiece = position => {
+    var placed = this.game.place({
       piece: this.state.selectedPiece.id,
       flipped: this.state.selectedFlipped,
       rotations: this.state.selectedRotations,
@@ -87,13 +92,33 @@ class Arena extends Component {
     });
   }
 
+  hoverPiece = (showHover, position) => {
+    if (showHover) {
+      var placementResult = this.game.place({
+        piece: this.state.selectedPiece.id,
+        flipped: this.state.selectedFlipped,
+        rotations: this.state.selectedRotations,
+        position,
+        probe: true
+      });
+      if (placementResult.success) {
+        this.setHighlightedPieces(placementResult.positions);
+      }
+    }
+    else {
+      this.setHighlightedPieces([]);
+    }
+  }
+
   render() {
     const players = this.game.players();
     const availablePieces = this.game.availablePieces({player: this.state.currentPlayer.id});
     return (
       <div className="arena-container">
         <Board board={this.state.board}
+               highlightedPieces={this.state.highlightedPieces}
                placeSelectedPiece={this.placeSelectedPiece}
+               hoverPiece={this.hoverPiece}
                isMainBoard={true} />
         <div className="piece-control-container">
           <PieceList pieces={availablePieces}
@@ -121,7 +146,9 @@ class Board extends Component {
                   row={row}
                   rowIdx={rowIdx}
                   isMainBoard={this.props.isMainBoard}
+                  highlightedPieces={this.props.highlightedPieces}
                   placeSelectedPiece={this.props.placeSelectedPiece}
+                  hoverPiece={this.props.hoverPiece}
                   key={rowIdx} />;
     });
     const mainBoardClass = (_.isBoolean(this.props.isMainBoard) && this.props.isMainBoard) ? 'main-board' : '';
@@ -132,6 +159,7 @@ class Board extends Component {
 Board.propTypes = {
   board: boardShape.isRequired,
   placeSelectedPiece: PropTypes.func,
+  hoverPiece: PropTypes.func,
   isMainBoard: PropTypes.bool,
 };
 
@@ -141,7 +169,9 @@ class Row extends Component {
     const cellList = _.map(this.props.row, (playerID, colIdx) => {
       return <Cell playerID={playerID}
                    position={{row: this.props.rowIdx, col: colIdx}}
+                   highlightedPieces={this.props.highlightedPieces}
                    placeSelectedPiece={this.props.placeSelectedPiece}
+                   hoverPiece={this.props.hoverPiece}
                    key={colIdx} />;
     });
     return <div className="board-row"> {cellList} </div>;
@@ -152,6 +182,7 @@ Row.propTypes = {
   row: PropTypes.arrayOf(PropTypes.number).isRequired,
   rowIdx: PropTypes.number.isRequired,
   placeSelectedPiece: PropTypes.func,
+  hoverPiece: PropTypes.func,
 };
 
 
@@ -162,13 +193,30 @@ class Cell extends Component {
     }
   }
 
+  hoverPiece = e => {
+    if (this.props.hoverPiece) {
+      this.props.hoverPiece(e.type == 'mouseenter', this.props.position);
+    }
+  }
+
   render() {
+    var highlighted = false;
+    if (this.props.highlightedPieces && this.props.highlightedPieces.length != 0) {
+      var _this = this;
+      highlighted = this.props.highlightedPieces.filter(
+        function(piece) {
+          return piece.row == _this.props.position.row && piece.col == _this.props.position.col;
+        }).length != 0;
+    }
     return (
       !_.isNull(this.props.playerID)
         ? <PlayerCell playerID={this.props.playerID}
                       placeSelectedPiece={this.placeSelectedPiece}
+                      highlighted={highlighted}
                       key={this.props.position.col} />
         : <EmptyCell placeSelectedPiece={this.placeSelectedPiece}
+                     hoverPiece={this.hoverPiece}
+                     highlighted={highlighted}
                      key={this.props.position.col} />
     );
   }
@@ -178,30 +226,39 @@ Cell.propTypes = {
   playerID: PropTypes.number,
   position: PropTypes.shape({row: PropTypes.number.isRequired, col: PropTypes.number.isRequired}),
   placeSelectedPiece: PropTypes.func,
+  hoverPiece: PropTypes.func,
 };
 
 
 class PlayerCell extends Cell {
   render() {
     const color = playerToColor[this.props.playerID];
-    return <div className="board-cell" style={{backgroundColor: color}} onClick={this.props.placeSelectedPiece}></div>;
+    return <div className={"board-cell" + (this.props.highlighted ? " highlighted" : "")} style={{backgroundColor: color}}
+            onClick={this.props.placeSelectedPiece}
+            onMouseEnter={this.props.hoverPiece}
+            onMouseLeave={this.props.hoverPiece}></div>;
   }
 }
 
 PlayerCell.propTypes = {
   playerID: PropTypes.number.isRequired,
   placeSelectedPiece: PropTypes.func,
+  hoverPiece: PropTypes.func,
 };
 
 
 class EmptyCell extends Cell {
   render() {
-    return <div className="board-cell empty-cell" onClick={this.props.placeSelectedPiece}></div>;
+    return <div className={"board-cell empty-cell" + (this.props.highlighted ? " highlighted" : "")}
+            onClick={this.props.placeSelectedPiece}
+            onMouseEnter={this.props.hoverPiece}
+            onMouseLeave={this.props.hoverPiece}></div>;
   }
 }
 
 EmptyCell.propTypes = {
   placeSelectedPiece: PropTypes.func,
+  hoverPiece: PropTypes.func,
 };
 
 
