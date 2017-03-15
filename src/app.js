@@ -78,7 +78,7 @@ class Arena extends Component {
   }
 
   placeSelectedPiece = position => {
-    var placed = this.game.place({
+    this.game.place({
       piece: this.state.selectedPiece.id,
       flipped: this.state.selectedFlipped,
       rotations: this.state.selectedRotations,
@@ -195,18 +195,18 @@ class Cell extends Component {
 
   hoverPiece = e => {
     if (this.props.hoverPiece) {
-      this.props.hoverPiece(e.type == 'mouseenter', this.props.position);
+      this.props.hoverPiece(e.type === 'mouseenter', this.props.position);
     }
   }
 
   render() {
     var highlighted = false;
-    if (this.props.highlightedPieces && this.props.highlightedPieces.length != 0) {
+    if (this.props.highlightedPieces && this.props.highlightedPieces.length !== 0) {
       var _this = this;
       highlighted = this.props.highlightedPieces.filter(
         function(piece) {
-          return piece.row == _this.props.position.row && piece.col == _this.props.position.col;
-        }).length != 0;
+          return piece.row === _this.props.position.row && piece.col === _this.props.position.col;
+        }).length !== 0;
     }
     return (
       !_.isNull(this.props.playerID)
