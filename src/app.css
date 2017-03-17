@@ -1,115 +1,87 @@
-/* Banner */
-
 .banner-container {
   display: flex;
   align-items: center;
-  margin: 0 3em;
-}
+  margin: 0 3em; }
 
-.banner-img {
+.banner-container .banner-img {
   height: 3em;
   width: 3em;
-  margin-right: 2em;
-}
+  margin-right: 2em; }
 
-.blokus-pronunciation {
-  margin-left: 1em;
-}
-
-/* Arena */
+.banner-container .blokus-pronunciation {
+  margin-left: 1em; }
 
 .arena-container {
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
-  margin: 1em 5em;
-}
-
-/* Board */
+  margin: 1em 5em; }
 
 .board-container {
   display: flex;
   flex-direction: column;
   padding: 0.3em;
   box-shadow: 0px 0px 20px #AAA;
-  background-color: #B69B4C;
-}
+  background-color: #B69B4C; }
 
-.main-board .board-cell.highlighted {
-  background-color: #CCC;
-  cursor: pointer;
-}
+.board-container .board-row {
+  display: flex; }
 
-.board-row {
-  display: flex;
-}
-
-.board-cell {
+.board-container .board-row .board-cell {
   height: 1.5em;
   width: 1.5em;
   margin: 1px;
   box-shadow: 2px 1px 1px #333;
-  background-color: white;
-}
+  background-color: white; }
 
-/* Pieces */
+.board-container .board-row .board-cell.highlighted {
+  background-color: #CCC;
+  cursor: pointer; }
 
 .piece-control-container {
   display: flex;
-  flex-direction: column;
-}
+  flex-direction: column; }
 
-.piece-list-container {
+.piece-control-container .piece-list-container {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   max-width: 25em;
   padding: 1em;
   background-color: white;
-  box-shadow: 0px 0px 20px #AAA;
-}
+  box-shadow: 0px 0px 20px #AAA; }
 
-.piece-list-container .board-container {
-  background-color: transparent;
-  box-shadow: none;
-}
+.piece-control-container .piece-list-container .piece-container {
+  padding: 0.5em; }
 
-.piece-list-container .board-cell {
-  height: 0.8em;
-  width: 0.8em;
-}
+.piece-control-container .piece-list-container .piece-container.selected-piece {
+  background-color: #DDD; }
 
-.piece-list-container .empty-cell {
-  background-color: transparent;
-  box-shadow: none;
-}
-
-.piece-container {
-  padding: 0.5em;
-}
-
-.piece-container:not(.selected-piece):hover {
+.piece-control-container .piece-list-container .piece-container:not(.selected-piece):hover {
   background-color: #EEE;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-.selected-piece {
-  background-color: #DDD;
-}
+.piece-control-container .piece-list-container .piece-container .board-container {
+  background-color: transparent;
+  box-shadow: none; }
 
-.piece-transform-container {
-  display: flex;
-}
+.piece-control-container .piece-list-container .piece-container .board-container .board-cell {
+  height: 0.8em;
+  width: 0.8em; }
 
-.piece-transform-icon {
+.piece-control-container .piece-list-container .piece-container .board-container .empty-cell {
+  background-color: transparent;
+  box-shadow: none; }
+
+.piece-control-container .piece-transform-container {
+  display: flex; }
+
+.piece-control-container .piece-transform-container .piece-transform-icon {
   margin: 1em 0 0 1em;
   padding: 0.5em;
   background-color: white;
   box-shadow: 0px 0px 10px #AAA;
-  cursor: pointer;
-}
-
-/* Players */
+  cursor: pointer; }
 
 .player-list-container {
   display: flex;
@@ -117,16 +89,13 @@
   padding: 0.5em;
   font-size: 0.9em;
   background-color: white;
-  box-shadow: 0px 0px 20px #AAA;
-}
+  box-shadow: 0px 0px 20px #AAA; }
 
-.player-container {
+.player-list-container .player-container {
   margin: 0.5em;
   padding: 0.5em;
   box-shadow: 0px 0px 10px #AAA;
-  cursor: default;
-}
+  cursor: default; }
 
-.player-container:not(.selected-player) {
-  opacity: 0.6;
-}
+.player-list-container .player-container:not(.selected-player) {
+  opacity: 0.6; }
