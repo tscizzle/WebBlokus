@@ -1,0 +1,13 @@
+$green: #5AF45A;
+$red: #FF6961;
+$blue: #779ECB;
+$yellow: #FDFD96;
+$playerColors: ($green, $red, $blue, $yellow);
+
+@mixin playerColors {
+  @for $i from 1 through length($playerColors) {
+    &.player-#{$i} {
+      background-color: nth($playerColors, $i);
+    }
+  }
+}

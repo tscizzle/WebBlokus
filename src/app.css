@@ -34,8 +34,20 @@
   box-shadow: 2px 1px 1px #333;
   background-color: white; }
 
+.board-container .board-row .board-cell.player-1 {
+  background-color: #5AF45A; }
+
+.board-container .board-row .board-cell.player-2 {
+  background-color: #FF6961; }
+
+.board-container .board-row .board-cell.player-3 {
+  background-color: #779ECB; }
+
+.board-container .board-row .board-cell.player-4 {
+  background-color: #FDFD96; }
+
 .board-container .board-row .board-cell.highlighted {
-  background-color: #CCC;
+  opacity: 0.3;
   cursor: pointer; }
 
 .piece-control-container {
@@ -96,6 +108,18 @@
   padding: 0.5em;
   box-shadow: 0px 0px 10px #AAA;
   cursor: default; }
+
+.player-list-container .player-container.player-1 {
+  background-color: #5AF45A; }
+
+.player-list-container .player-container.player-2 {
+  background-color: #FF6961; }
+
+.player-list-container .player-container.player-3 {
+  background-color: #779ECB; }
+
+.player-list-container .player-container.player-4 {
+  background-color: #FDFD96; }
 
 .player-list-container .player-container:not(.selected-player) {
   opacity: 0.6; }
