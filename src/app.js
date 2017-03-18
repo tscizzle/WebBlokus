@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
+import classNames from 'classnames';
 import { FaRotateLeft,
          FaArrowsH     } from 'react-icons/lib/fa';
 
@@ -153,8 +154,7 @@ class Board extends Component {
                   getCurrentPlayerID={this.props.getCurrentPlayerID}
                   key={rowIdx} />;
     });
-    const mainBoardClass = (_.isBoolean(this.props.isMainBoard) && this.props.isMainBoard) ? 'main-board' : '';
-    return <div className={"board-container " + mainBoardClass}> {rowList} </div>
+    return <div className="board-container"> {rowList} </div>
   }
 }
 
@@ -206,9 +206,7 @@ class Cell extends Component {
     }
   }
 
-  oneIndex = n => {
-    return n + 1;
-  }
+  oneIndex = n => n + 1;
 
   render() {
     const highlighted = !_.isUndefined(_.find(this.props.highlightedPositions, this.props.position));
@@ -241,9 +239,9 @@ Cell.propTypes = {
 class PlayerCell extends Cell {
   render() {
     const playerClass = "player-" + this.oneIndex(this.props.playerID);
-    const highlightedClass = this.props.highlighted ? "highlighted" : "";
+    const playerCellClasses = classNames('board-cell', playerClass, {'highlighted': this.props.highlighted});
     return (
-      <div className={"board-cell " + playerClass + " " + highlightedClass}
+      <div className={playerCellClasses}
            onClick={this.props.placeSelectedPiece}
            onMouseEnter={this.props.hoverPosition}
            onMouseLeave={this.props.hoverPosition}>
@@ -263,9 +261,12 @@ PlayerCell.propTypes = {
 class EmptyCell extends Cell {
   render() {
     const playerClass = this.props.getCurrentPlayerID ? "player-" + this.oneIndex(this.props.getCurrentPlayerID()) : "";
-    const highlightedClass = this.props.highlighted ? "highlighted " + playerClass : "";
+    const emptyCellClasses = classNames('board-cell', 'empty-cell', {
+      'highlighted': this.props.highlighted,
+      [playerClass]: this.props.highlighted,
+    });
     return (
-      <div className={"board-cell empty-cell " + highlightedClass}
+      <div className={emptyCellClasses}
            onClick={this.props.placeSelectedPiece}
            onMouseEnter={this.props.hoverPosition}
            onMouseLeave={this.props.hoverPosition}>
@@ -317,10 +318,11 @@ class Piece extends Component {
     const flippedShape = this.props.flipped ? flip(shape) : shape;
     const flippedRotatedShape = rotate(flippedShape, this.props.rotations);
     const shapeBoard = _.map(flippedRotatedShape, row => _.map(row, cell => cell === 'X' ? playerID : null));
-    const selected = this.props.piece.id === this.props.selectedPiece.id;
-    const selectedClass = selected ? 'selected-piece' : '';
+    const pieceClasses = classNames('piece-container', {
+      'selected-piece': this.props.piece.id === this.props.selectedPiece.id,
+    });
     return (
-      <div className={"piece-container " + selectedClass}
+      <div className={pieceClasses}
            onClick={this.clickPiece}>
         <Board board={shapeBoard} />
       </div>
@@ -391,11 +393,12 @@ PlayerList.propTypes = {
 
 class Player extends Component {
   render() {
-    const colorClass = "player-" + (this.props.player.id + 1);
-    const selected = this.props.player.id === this.props.currentPlayer.id;
-    const selectedClass = selected ? 'selected-player' : '';
+    const colorClass = 'player-' + (this.props.player.id + 1);
+    const playerClasses = classNames('player-container', colorClass, {
+      'selected-player': this.props.player.id === this.props.currentPlayer.id,
+    });
     return (
-      <div className={"player-container " + colorClass + " " + selectedClass}
+      <div className={playerClasses}
            key={this.props.player.id}>
         <b> {this.props.player.name} </b>
       </div>
