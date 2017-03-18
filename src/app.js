@@ -7,7 +7,7 @@ import { FaRotateLeft,
 import { game, transform } from 'blokus';
 const { flip, rotate } = transform;
 
-import './app.css';
+import '../public/stylesheets/app.css';
 import { playerShape,
          pieceShape,
          boardShape,
