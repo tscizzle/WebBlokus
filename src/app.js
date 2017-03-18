@@ -343,6 +343,13 @@ class PieceTransform extends Component {
   toggleFlipped = () => {
     const newFlipped = !this.props.flipped;
     this.props.setSelectedFlipped(newFlipped);
+    // if the piece is rotated an odd number of times (i.e. onto its side),
+    // it will get flipped vertically instead of horizontally.
+    // to make the flip horizontal in this case, rotate the piece twice.
+    if (this.props.rotations % 2 === 1) {
+      const newRotations = (this.props.rotations + 2) % 4;
+      this.props.setSelectedRotations(newRotations);
+    }
   }
 
   incrementRotations = () => {
