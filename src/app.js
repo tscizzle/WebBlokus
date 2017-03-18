@@ -91,6 +91,7 @@ class Arena extends Component {
       board,
       currentPlayer,
     });
+    this.hoverPosition(false, position);
   }
 
   hoverPosition = (showHover, position) => {
