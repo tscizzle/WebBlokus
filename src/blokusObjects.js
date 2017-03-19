@@ -4,6 +4,7 @@ import { PropTypes } from 'react';
 export const playerShape = PropTypes.shape({
   id: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
+  hasPassed: PropTypes.bool.isRequired,
 });
 
 export const pieceShape = PropTypes.shape({
