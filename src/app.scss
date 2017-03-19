@@ -68,6 +68,33 @@
   display: flex;
   flex-direction: column;
 
+  .piece-control-bottom-row {
+    display: flex;
+    justify-content: space-between;
+
+    .piece-transform-container {
+      display: flex;
+
+      .piece-transform-icon {
+        margin: 16px 0 0 16px;
+        padding: 8px;
+        background-color: white;
+        box-shadow: 0 0 10px #AAA;
+        cursor: pointer;
+      }
+    }
+
+    .pass-button {
+      display: flex;
+      align-items: center;
+      margin: 16px 16px 0 0;
+      padding: 12px;
+      background-color: #EEE;
+      box-shadow: 0 0 10px #AAA;
+      cursor: pointer;
+    }
+  }
+
   .piece-list-container {
     display: flex;
     align-items: center;
@@ -104,18 +131,6 @@
           }
         }
       }
-    }
-  }
-
-  .piece-transform-container {
-    display: flex;
-
-    .piece-transform-icon {
-      margin: 16px 0 0 16px;
-      padding: 8px;
-      background-color: white;
-      box-shadow: 0 0 10px #AAA;
-      cursor: pointer;
     }
   }
 }

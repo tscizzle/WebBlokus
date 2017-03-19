@@ -94,6 +94,12 @@ class Arena extends Component {
     this.hoverPosition(false, position);
   }
 
+  passTurn = () => {
+    this.game.pass();
+    const currentPlayer = this.game.currentPlayer();
+    this.setState({currentPlayer});
+  }
+
   hoverPosition = (showHover, position) => {
     if (showHover) {
       var placementResult = this.game.place({
@@ -129,10 +135,13 @@ class Arena extends Component {
                      flipped={this.state.selectedFlipped}
                      rotations={this.state.selectedRotations}
                      setSelectedPiece={this.setSelectedPiece} />
-          <PieceTransform flipped={this.state.selectedFlipped}
-                          rotations={this.state.selectedRotations}
-                          setSelectedFlipped={this.setSelectedFlipped}
-                          setSelectedRotations={this.setSelectedRotations} />
+          <div className="piece-control-bottom-row">
+            <PieceTransform flipped={this.state.selectedFlipped}
+                            rotations={this.state.selectedRotations}
+                            setSelectedFlipped={this.setSelectedFlipped}
+                            setSelectedRotations={this.setSelectedRotations} />
+            <PassButton passTurn={this.passTurn} />
+          </div>
         </div>
         <PlayerList players={players}
                     currentPlayer={this.state.currentPlayer} />
@@ -380,6 +389,22 @@ PieceTransform.propTypes = {
   setSelectedFlipped: PropTypes.func.isRequired,
   setSelectedRotations: PropTypes.func.isRequired,
 };
+
+
+class PassButton extends Component {
+  render() {
+    return (
+      <div className="pass-button"
+           onClick={this.props.passTurn}>
+        <b> Pass </b>
+      </div>
+    );
+  }
+}
+
+PassButton.propTypes = {
+  passTurn: PropTypes.func.isRequired,
+}
 
 
 class PlayerList extends Component {
