@@ -1,6 +1,5 @@
 @import "./constants.scss";
 
-
 ////////////
 // Banner //
 ////////////
@@ -8,16 +7,16 @@
 .banner-container {
   display: flex;
   align-items: center;
-  margin: 0 3em;
+  margin: 0 48px;
 
   .banner-img {
-    height: 3em;
-    width: 3em;
-    margin-right: 2em;
+    height: 48px;
+    width: 48px;
+    margin-right: 32px;
   }
 
   .blokus-pronunciation {
-    margin-left: 1em;
+    margin-left: 16px;
   }
 }
 
@@ -29,7 +28,7 @@
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
-  margin: 1em 5em;
+  margin: 16px 80px;
 }
 
 ///////////
@@ -39,23 +38,22 @@
 .board-container {
   display: flex;
   flex-direction: column;
-  padding: 0.3em;
-  box-shadow: 0px 0px 20px #AAA;
-  background-color: #B69B4C;
+  padding: 5px;
+  box-shadow: 0 0 20px #AAA;
+  background-color: $canvasYellow;
 
   .board-row {
     display: flex;
 
     .board-cell {
-      height: 1.5em;
-      width: 1.5em;
-      margin: 1px;
-      box-shadow: 2px 1px 1px #333;
+      height: $boardCellSize;
+      width: $boardCellSize;
       background-color: white;
+      border-width: $boardCellBorder;
+      border: 1px solid $canvasYellow;
       @include playerColors;
 
       &.highlighted {
-        opacity: 0.3;
         cursor: pointer;
       }
     }
@@ -74,13 +72,13 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    max-width: 25em;
-    padding: 1em;
+    max-width: 400px;
+    padding: 16px;
     background-color: white;
-    box-shadow: 0px 0px 20px #AAA;
+    box-shadow: 0 0 20px #AAA;
 
     .piece-container {
-      padding: 0.5em;
+      padding: 8px;
 
       &.selected-piece {
         background-color: #DDD;
@@ -96,13 +94,14 @@
         box-shadow: none;
 
         .board-cell {
-          height: 0.8em;
-          width: 0.8em;
-        }
+          width: $boardCellSize / 2;
+          height: $boardCellSize / 2;
+          border-size: $boardCellBorder / 2;
 
-        .empty-cell {
-          background-color: transparent;
-          box-shadow: none;
+          &.empty-cell {
+            background-color: transparent;
+            border-color: transparent;
+          }
         }
       }
     }
@@ -112,10 +111,10 @@
     display: flex;
 
     .piece-transform-icon {
-      margin: 1em 0 0 1em;
-      padding: 0.5em;
+      margin: 16px 0 0 16px;
+      padding: 8px;
       background-color: white;
-      box-shadow: 0px 0px 10px #AAA;
+      box-shadow: 0 0 10px #AAA;
       cursor: pointer;
     }
   }
@@ -128,16 +127,17 @@
 .player-list-container {
   display: flex;
   flex-direction: column;
-  padding: 0.5em;
-  font-size: 0.9em;
+  padding: 8px;
+  font-size: 14px;
   background-color: white;
-  box-shadow: 0px 0px 20px #AAA;
+  box-shadow: 0 0 20px #AAA;
 
   .player-container {
-    margin: 0.5em;
-    padding: 0.5em;
-    box-shadow: 0px 0px 10px #AAA;
+    margin: 8px;
+    padding: 8px;
+    box-shadow: 0 0 10px #AAA;
     cursor: default;
+    color: white;
     @include playerColors;
 
     &:not(.selected-player) {
