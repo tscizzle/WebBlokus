@@ -1,13 +1,58 @@
-$green: #5AF45A;
-$red: #FF6961;
-$blue: #779ECB;
-$yellow: #FDFD96;
+////////////
+// Colors //
+////////////
+
+$green: #5E9732;
+$lightestGreen: #B8E297;
+$lightGreen: #87BC5E;
+$darkGreen: #3C7113;
+$darkestGreen: #214B00;
+
+$red: #AA3939;
+$lightestRed: #FFAAAA;
+$lightRed: #D46A6A;
+$darkRed: #801515;
+$darkestRed: #550000;
+
+$blue: #1E529E;
+$lightestBlue: #5E84BC;
+$lightBlue: #3B66A6;
+$darkBlue: #103D7F;
+$darkestBlue: #082D64;
+
+$yellow: #AAA939;
+$lightestYellow: #FFFEAA;
+$lightYellow: #D4D46A;
+$darkYellow: #807F15;
+$darkestYellow: #555400;
+$canvasYellow: #B69B4C;
+
+///////////////
+// Constants //
+///////////////
+
 $playerColors: ($green, $red, $blue, $yellow);
+$embedColors: ($darkGreen, $darkRed, $darkBlue, $darkYellow);
+$highlightColors: ($lightestGreen, $lightestRed, $lightestBlue, $lightestYellow);
+$highlightEmbed: ($lightGreen, $lightRed, $lightBlue, $lightYellow);
+
+$boardCellSize: 24px;
+$boardCellBorder: 1px;
+
+/////////////
+// Mix-ins //
+/////////////
 
 @mixin playerColors {
   @for $i from 1 through length($playerColors) {
     &.player-#{$i} {
       background-color: nth($playerColors, $i);
+      border-color: nth($embedColors, $i);
+
+      &.highlighted {
+        background-color: nth($highlightColors, $i);
+        border-color: nth($highlightEmbed, $i);
+      }
     }
   }
 }
