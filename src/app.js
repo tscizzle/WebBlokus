@@ -102,20 +102,21 @@ class Arena extends Component {
   }
 
   hoverPosition = (showHover, position) => {
-    if (showHover) {
-      var placementResult = this.game.place({
-        piece: this.state.selectedPiece.id,
-        flipped: this.state.selectedFlipped,
-        rotations: this.state.selectedRotations,
-        position,
-        probe: true,
-      });
-      if (placementResult.success) {
-        this.setState({highlightedPositions: placementResult.positions});
+    if (!this.game.isOver()) {
+      if (showHover) {
+        var placementResult = this.game.place({
+          piece: this.state.selectedPiece.id,
+          flipped: this.state.selectedFlipped,
+          rotations: this.state.selectedRotations,
+          position,
+          probe: true,
+        });
+        if (placementResult.success) {
+          this.setState({highlightedPositions: placementResult.positions});
+        }
+      } else {
+        this.setState({highlightedPositions: []});
       }
-    }
-    else {
-      this.setState({highlightedPositions: []});
     }
   }
 
