@@ -148,6 +148,7 @@
   box-shadow: 0 0 20px #AAA;
 
   .player-container {
+    position: relative;
     margin: 8px;
     padding: 8px;
     box-shadow: 0 0 10px #AAA;
@@ -157,6 +158,24 @@
 
     &:not(.selected-player) {
       opacity: 0.6;
+    }
+
+    .player-passed {
+      text-decoration: line-through;
+      font-style: italic;
+    }
+
+    .player-score {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      height: 20px;
+      width: 20px;
+      border-radius: 5px;
+      background-color: red;
     }
   }
 }

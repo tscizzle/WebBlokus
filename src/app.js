@@ -47,7 +47,7 @@ class Arena extends Component {
     this.game = game();
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
-    const selectedPiece = _.find(this.game.pieces(), {id: 20, player: currentPlayer.id});
+    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
     this.state = {
       board,
       currentPlayer,
@@ -59,7 +59,8 @@ class Arena extends Component {
   }
 
   getCurrentPlayerID = () => {
-    return this.game.currentPlayer().id;
+    const currentPlayer = this.game.currentPlayer();
+    return !_.isNull(currentPlayer) ? currentPlayer.id : null;
   }
 
   setBoard = board => {
@@ -120,7 +121,15 @@ class Arena extends Component {
 
   render() {
     const players = this.game.players();
-    const availablePieces = this.game.availablePieces({player: this.state.currentPlayer.id});
+    const playerScores = _.map(players, player => {
+      return {
+        player: player.id,
+        score: this.game.numRemaining({player: player.id}),
+      };
+    });
+    const currentPlayer = this.state.currentPlayer;
+    const availablePieces = !_.isNull(currentPlayer) ? this.game.availablePieces({player: currentPlayer.id}) : [];
+    const isOver = this.game.isOver();
     return (
       <div className="arena-container">
         <Board board={this.state.board}
@@ -129,21 +138,25 @@ class Arena extends Component {
                hoverPosition={this.hoverPosition}
                isMainBoard={true}
                getCurrentPlayerID={this.getCurrentPlayerID} />
-        <div className="piece-control-container">
-          <PieceList pieces={availablePieces}
-                     selectedPiece={this.state.selectedPiece}
-                     flipped={this.state.selectedFlipped}
-                     rotations={this.state.selectedRotations}
-                     setSelectedPiece={this.setSelectedPiece} />
-          <div className="piece-control-bottom-row">
-            <PieceTransform flipped={this.state.selectedFlipped}
-                            rotations={this.state.selectedRotations}
-                            setSelectedFlipped={this.setSelectedFlipped}
-                            setSelectedRotations={this.setSelectedRotations} />
-            <PassButton passTurn={this.passTurn} />
-          </div>
-        </div>
+        {!isOver ?
+          <div className="piece-control-container">
+            <PieceList pieces={availablePieces}
+                       selectedPiece={this.state.selectedPiece}
+                       flipped={this.state.selectedFlipped}
+                       rotations={this.state.selectedRotations}
+                       setSelectedPiece={this.setSelectedPiece} />
+            <div className="piece-control-bottom-row">
+              <PieceTransform flipped={this.state.selectedFlipped}
+                              rotations={this.state.selectedRotations}
+                              setSelectedFlipped={this.setSelectedFlipped}
+                              setSelectedRotations={this.setSelectedRotations} />
+              <PassButton passTurn={this.passTurn} />
+            </div>
+          </div> :
+          <b> The game is over! </b>
+        }
         <PlayerList players={players}
+                    playerScores={playerScores}
                     currentPlayer={this.state.currentPlayer} />
       </div>
     );
@@ -270,7 +283,7 @@ PlayerCell.propTypes = {
 
 class EmptyCell extends Cell {
   render() {
-    const playerClass = this.props.getCurrentPlayerID ? "player-" + this.oneIndex(this.props.getCurrentPlayerID()) : "";
+    const playerClass = this.props.getCurrentPlayerID ? 'player-' + this.oneIndex(this.props.getCurrentPlayerID()) : '';
     const emptyCellClasses = classNames('board-cell', 'empty-cell', {
       'highlighted': this.props.highlighted,
       [playerClass]: this.props.highlighted,
@@ -410,8 +423,10 @@ PassButton.propTypes = {
 class PlayerList extends Component {
   render() {
     const playerList = _.map(this.props.players, player => {
+      const score = _.find(this.props.playerScores, {player: player.id}).score;
       return <Player player={player}
                      currentPlayer={this.props.currentPlayer}
+                     score={score}
                      key={player.id} />;
     });
     return <div className="player-list-container"> {playerList} </div>;
@@ -420,7 +435,11 @@ class PlayerList extends Component {
 
 PlayerList.propTypes = {
   players: PropTypes.arrayOf(playerShape).isRequired,
-  currentPlayer: playerShape.isRequired,
+  playerScores: PropTypes.arrayOf(PropTypes.shape({
+    player: PropTypes.number.isRequired,
+    score: PropTypes.number.isRequired,
+  })).isRequired,
+  currentPlayer: playerShape,
 };
 
 
@@ -428,12 +447,14 @@ class Player extends Component {
   render() {
     const colorClass = 'player-' + (this.props.player.id + 1);
     const playerClasses = classNames('player-container', colorClass, {
-      'selected-player': this.props.player.id === this.props.currentPlayer.id,
+      'selected-player': this.props.player.id === (this.props.currentPlayer || {}).id,
     });
+    const playerNameClasses = classNames({'player-passed': this.props.player.hasPassed});
     return (
       <div className={playerClasses}
            key={this.props.player.id}>
-        <b> {this.props.player.name} </b>
+        <b className={playerNameClasses}> {this.props.player.name} </b>
+        <PlayerScore score={this.props.score} />
       </div>
     );
   }
@@ -441,7 +462,19 @@ class Player extends Component {
 
 Player.propTypes = {
   player: playerShape.isRequired,
-  currentPlayer: playerShape.isRequired,
+  currentPlayer: playerShape,
+  score: PropTypes.number.isRequired,
+};
+
+
+class PlayerScore extends Component {
+  render() {
+    return <div className="player-score"> {this.props.score} </div>
+  }
+}
+
+PlayerScore.propTypes = {
+  score: PropTypes.number.isRequired,
 };
 
 
