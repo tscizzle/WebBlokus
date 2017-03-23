@@ -2,15 +2,18 @@
   "name": "web-blokus",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://tscizzle.github.io/WebBlokus",
   "dependencies": {
-    "blokus": "0.0.9",
+    "blokus": "0.0.12",
     "classnames": "^2.2.5",
+    "express": "^4.15.2",
     "lodash": "^4.17.4",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-icons": "^2.2.3"
   },
   "devDependencies": {
+    "gh-pages": "^0.12.0",
     "node-sass": "^4.5.0",
     "npm-run-all": "^4.0.2",
     "react-scripts": "0.9.4"
@@ -22,6 +25,7 @@
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
+    "deploy": "npm run build && gh-pages -d build",
     "eject": "react-scripts eject"
   }
 }
