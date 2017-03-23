@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "blokus": "0.0.9",
+    "blokus": "0.0.13",
     "classnames": "^2.2.5",
     "lodash": "^4.17.4",
     "react": "^15.4.2",
