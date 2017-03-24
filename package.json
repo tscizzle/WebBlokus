@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://tscizzle.github.io/WebBlokus",
   "dependencies": {
-    "blokus": "0.0.12",
+    "blokus": "0.0.14",
     "classnames": "^2.2.5",
     "express": "^4.15.2",
     "lodash": "^4.17.4",
