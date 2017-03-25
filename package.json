@@ -2,7 +2,6 @@
   "name": "web-blokus",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://tscizzle.github.io/WebBlokus",
   "dependencies": {
     "blokus": "0.0.14",
     "classnames": "^2.2.5",
