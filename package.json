@@ -17,9 +17,9 @@
   },
   "scripts": {
     "build-css": "node-sass src/ -o public/stylesheets",
-    "watch-css": "npm run build-css && node-sass src/ -o public/stylesheets --watch --recursive",
+    "watch-css": "node-sass src/ -o public/stylesheets --watch --recursive",
     "start-js": "node server",
-    "start": "npm-run-all -p watch-css start-js",
+    "start": "npm-run-all -p build watch-css start-js",
     "build": "npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
