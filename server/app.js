@@ -9,8 +9,7 @@ var io = require('socket.io')(server);
 
 // Serve static assets
 
-// uses /WebBlokus because of "homepage" in package.json
-app.use('/WebBlokus', express.static(path.resolve(__dirname, '..', 'build')));
+app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
 
 // sockets
