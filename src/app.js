@@ -1,4 +1,6 @@
 import React, { Component, PropTypes } from 'react';
+import io from 'socket.io-client';
+const socket = io();
 import _ from 'lodash';
 import classNames from 'classnames';
 import { FaRotateLeft,
@@ -6,7 +8,6 @@ import { FaRotateLeft,
 
 import { game, transform } from 'blokus';
 const { flip, rotate } = transform;
-
 import '../public/stylesheets/app.css';
 import { playerShape,
          pieceShape,
@@ -30,9 +31,6 @@ class Banner extends Component {
   render() {
     return (
       <div className="banner-container">
-        <img className="banner-img"
-             src="./favicon.ico"
-             alt="" />
         <h1> Blokus </h1>
         <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
       </div>
@@ -58,13 +56,22 @@ class Arena extends Component {
     };
   }
 
+  componentDidMount() {
+    socket.on('took:turn', placement => {
+      console.log('turn was taken, placement was sent', placement);
+      this.game.place(placement);
+      const board = this.game.board();
+      const currentPlayer = this.game.currentPlayer();
+      this.setState({
+        board,
+        currentPlayer,
+      });
+    });
+  }
+
   getCurrentPlayerID = () => {
     const currentPlayer = this.game.currentPlayer();
     return !_.isNull(currentPlayer) ? currentPlayer.id : null;
-  }
-
-  setBoard = board => {
-    this.setState({board});
   }
 
   setSelectedPiece = piece => {
@@ -80,19 +87,19 @@ class Arena extends Component {
   }
 
   placeSelectedPiece = position => {
-    this.game.place({
+    const placement = {
       piece: this.state.selectedPiece.id,
       flipped: this.state.selectedFlipped,
       rotations: this.state.selectedRotations,
       position,
-    });
-    const board = this.game.board();
-    const currentPlayer = this.game.currentPlayer();
-    this.setState({
-      board,
-      currentPlayer,
-    });
-    this.hoverPosition(false, position);
+    };
+    const probePlacement = _.merge(_.cloneDeep(placement), {probe: true});
+    const probeResult = this.game.place(probePlacement);
+    if (probeResult.success) {
+      console.log('taking turn, sending placement', placement);
+      socket.emit('take:turn', placement);
+      this.hoverPosition(false, position);
+    }
   }
 
   passTurn = () => {
@@ -104,7 +111,7 @@ class Arena extends Component {
   hoverPosition = (showHover, position) => {
     if (!this.game.isOver()) {
       if (showHover) {
-        var placementResult = this.game.place({
+        const placementResult = this.game.place({
           piece: this.state.selectedPiece.id,
           flipped: this.state.selectedFlipped,
           rotations: this.state.selectedRotations,
