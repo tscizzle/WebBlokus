@@ -58,8 +58,11 @@ class Arena extends Component {
 
   componentDidMount() {
     socket.on('took:turn', placement => {
-      console.log('turn was taken, placement was sent', placement);
-      this.game.place(placement);
+      if (placement === 'PASS') {
+        this.game.pass();
+      } else {
+        this.game.place(placement);
+      }
       const board = this.game.board();
       const currentPlayer = this.game.currentPlayer();
       this.setState({
@@ -96,16 +99,14 @@ class Arena extends Component {
     const probePlacement = _.merge(_.cloneDeep(placement), {probe: true});
     const probeResult = this.game.place(probePlacement);
     if (probeResult.success) {
-      console.log('taking turn, sending placement', placement);
       socket.emit('take:turn', placement);
       this.hoverPosition(false, position);
     }
   }
 
   passTurn = () => {
-    this.game.pass();
-    const currentPlayer = this.game.currentPlayer();
-    this.setState({currentPlayer});
+    const placement = 'PASS';
+    socket.emit('take:turn', placement);
   }
 
   hoverPosition = (showHover, position) => {
