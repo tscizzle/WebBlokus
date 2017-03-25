@@ -42,18 +42,8 @@ class Banner extends Component {
 class Arena extends Component {
   constructor(props) {
     super(props);
-    this.game = game();
-    const board = this.game.board();
-    const currentPlayer = this.game.currentPlayer();
-    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
-    this.state = {
-      board,
-      currentPlayer,
-      selectedPiece,
-      selectedFlipped: false,
-      selectedRotations: 0,
-      highlightedPositions: [],
-    };
+    const arenaState = this.initializeGame();
+    this.state = arenaState;
   }
 
   componentDidMount() {
@@ -70,6 +60,22 @@ class Arena extends Component {
         currentPlayer,
       });
     });
+  }
+
+  initializeGame = () => {
+    this.game = game();
+    const board = this.game.board();
+    const currentPlayer = this.game.currentPlayer();
+    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
+    const arenaState = {
+      board,
+      currentPlayer,
+      selectedPiece,
+      selectedFlipped: false,
+      selectedRotations: 0,
+      highlightedPositions: [],
+    };
+    return arenaState;
   }
 
   getCurrentPlayerID = () => {
@@ -161,6 +167,7 @@ class Arena extends Component {
                               setSelectedRotations={this.setSelectedRotations} />
               <PassButton passTurn={this.passTurn} />
             </div>
+            <button onClick={() => this.setState(this.initializeGame())}> New Game </button>
           </div> :
           <b> The game is over! </b>
         }
