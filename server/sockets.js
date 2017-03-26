@@ -1,9 +1,15 @@
 module.exports = function(io) {
+
   io.on('connection', function(socket) {
-    socket.join('community blokus');
 
     socket.on('take:turn', function(placement) {
-      io.in('community blokus').emit('took:turn', placement);
+      io.sockets.emit('take:turn', placement);
     });
+
+    socket.on('new:game', function() {
+      io.sockets.emit('new:game');
+    });
+
   });
+
 };

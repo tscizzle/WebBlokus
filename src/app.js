@@ -30,11 +30,23 @@ class App extends Component {
 
 
 class Banner extends Component {
+  requestNewGame = () => {
+    socket.emit('new:game');
+  }
+
   render() {
     return (
       <div className="banner-container">
-        <h1> Blokus </h1>
-        <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
+        <div className="banner-left">
+          <h1> Blokus </h1>
+          <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
+        </div>
+        <div className="banner-right">
+          <div className="new-game"
+               onClick={this.requestNewGame}>
+            New Game
+          </div>
+        </div>
       </div>
     );
   }
@@ -44,12 +56,11 @@ class Banner extends Component {
 class Arena extends Component {
   constructor(props) {
     super(props);
-    const arenaState = this.initializeGame();
-    this.state = arenaState;
+    this.state = this.getInitialGameState();
   }
 
   componentDidMount() {
-    socket.on('took:turn', placement => {
+    socket.on('take:turn', placement => {
       if (placement === 'PASS') {
         this.game.pass();
       } else {
@@ -62,9 +73,13 @@ class Arena extends Component {
         currentPlayer,
       });
     });
+
+    socket.on('new:game', () => {
+      this.setState(this.getInitialGameState());
+    });
   }
 
-  initializeGame = () => {
+  getInitialGameState = () => {
     this.game = game();
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
@@ -169,7 +184,6 @@ class Arena extends Component {
                               setSelectedRotations={this.setSelectedRotations} />
               <PassButton passTurn={this.passTurn} />
             </div>
-            <button onClick={() => this.setState(this.initializeGame())}> New Game </button>
           </div> :
           <b> The game is over! </b>
         }
@@ -427,7 +441,7 @@ class PassButton extends Component {
     return (
       <div className="pass-button"
            onClick={this.props.passTurn}>
-        <b> Pass </b>
+        Pass
       </div>
     );
   }

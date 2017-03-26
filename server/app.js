@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
 
-// const isProduction = process.env.NODE_ENV === 'production';
-const isProduction = true;
+const isProduction = process.env.NODE_ENV === 'production';
 
 
 const app = express();

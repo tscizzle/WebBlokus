@@ -1,0 +1,17 @@
+.nice-button {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: white;
+  box-shadow: 0 0 10px #AAA;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.65;
+  }
+}
+
+@mixin back-shadow($size) {
+  box-shadow: 0 0 $size #AAA;
+}
