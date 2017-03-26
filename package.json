@@ -28,7 +28,7 @@
     "start-dev": "npm-run-all -p watch-css start-react start-server-dev",
     "start": "npm run start-server",
     "build": "npm run build-css && react-scripts build",
-    "deploy": "npm run build && git push heroku master",
+    "deploy": "git push heroku master",
     "heroku-postbuild": "npm run build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
