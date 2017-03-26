@@ -111,14 +111,21 @@ class GameSelection extends Component {
 class Arena extends Component {
   constructor(props) {
     super(props);
+    this.gameID = this.props.match.params.gameID;
     this.state = this.getInitialGameState();
   }
 
   componentDidMount() {
+    socket.emit('joined:game', {gameID: this.gameID});
+
     socket.on('take:turn', ({turns}) => {
       this.catchUpTurns(turns);
       this.updateStateAfterTurn();
     });
+  }
+
+  componentWillUnmount() {
+    socket.emit('left:game', {gameID: this.gameID});
   }
 
   getInitialGameState = () => {
@@ -175,8 +182,7 @@ class Arena extends Component {
     };
     const placementResult = this.game.place(placement);
     if (placementResult.success) {
-      const turns = this.game.turns();
-      socket.emit('take:turn', {turns});
+      socket.emit('take:turn', {turns: this.game.turns()});
       this.updateStateAfterTurn();
       this.hoverPosition(false, position);
     }
@@ -185,8 +191,7 @@ class Arena extends Component {
   passTurn = () => {
     const passResult = this.game.pass();
     if (passResult.success) {
-      const turns = this.game.turns();
-      socket.emit('take:turn', {turns});
+      socket.emit('take:turn', {turns: this.game.turns()});
       this.updateStateAfterTurn();
     }
   }
