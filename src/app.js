@@ -76,9 +76,11 @@ class Arena extends Component {
   updateStateAfterTurn = () => {
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
+    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
     this.setState({
       board,
       currentPlayer,
+      selectedPiece,
     });
   }
 
@@ -247,7 +249,7 @@ PieceList.propTypes = {
 
 class Piece extends Component {
   clickPiece = () => {
-    if (!_.isNull(this.props.setSelectedPiece)) {
+    if (this.props.setSelectedPiece) {
       this.props.setSelectedPiece(this.props.piece);
     }
   }
