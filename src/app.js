@@ -30,23 +30,11 @@ class App extends Component {
 
 
 class Banner extends Component {
-  requestNewGame = () => {
-    socket.emit('new:game');
-  }
-
   render() {
     return (
       <div className="banner-container">
-        <div className="banner-left">
-          <h1> Blokus </h1>
-          <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
-        </div>
-        <div className="banner-right">
-          <div className="new-game"
-               onClick={this.requestNewGame}>
-            New Game
-          </div>
-        </div>
+        <h1> Blokus </h1>
+        <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
       </div>
     );
   }
@@ -60,18 +48,9 @@ class Arena extends Component {
   }
 
   componentDidMount() {
-    socket.on('take:turn', placement => {
-      if (placement === 'PASS') {
-        this.game.pass();
-      } else {
-        this.game.place(placement);
-      }
-      const board = this.game.board();
-      const currentPlayer = this.game.currentPlayer();
-      this.setState({
-        board,
-        currentPlayer,
-      });
+    socket.on('take:turn', ({turns}) => {
+      this.catchUpTurns(turns);
+      this.updateStateAfterTurn();
     });
 
     socket.on('new:game', () => {
@@ -95,6 +74,83 @@ class Arena extends Component {
     return arenaState;
   }
 
+  updateStateAfterTurn = () => {
+    const board = this.game.board();
+    const currentPlayer = this.game.currentPlayer();
+    this.setState({
+      board,
+      currentPlayer,
+    });
+  }
+
+  catchUpTurns = turns => {
+    const previousSavedTurns = turns.slice(0, turns.length-1);
+    const clientTurns = this.game.turns();
+    let turnsToCatchUp;
+    if (!_.isEqual(clientTurns, previousSavedTurns)) {
+      this.game = game();
+      turnsToCatchUp = turns;
+    } else {
+      turnsToCatchUp = turns.slice(turns.length-1);
+    }
+    _.each(turnsToCatchUp, turn => {
+      if (turn.isPass) {
+        this.game.pass();
+      } else {
+        const catchUpPlacement = _.pick(turn, ['piece', 'flipped', 'rotations', 'position']);
+        this.game.place(catchUpPlacement);
+      }
+    });
+  }
+
+  placeSelectedPiece = position => {
+    const placement = {
+      piece: this.state.selectedPiece.id,
+      flipped: this.state.selectedFlipped,
+      rotations: this.state.selectedRotations,
+      position,
+    };
+    const placementResult = this.game.place(placement);
+    if (placementResult.success) {
+      const turns = this.game.turns();
+      socket.emit('take:turn', {turns});
+      this.updateStateAfterTurn();
+      this.hoverPosition(false, position);
+    }
+  }
+
+  passTurn = () => {
+    const passResult = this.game.pass();
+    if (passResult.success) {
+      const turns = this.game.turns();
+      socket.emit('take:turn', {turns});
+    }
+  }
+
+  startNewGame = () => {
+    socket.emit('new:game');
+    this.setState(this.getInitialGameState());
+  }
+
+  hoverPosition = (showHover, position) => {
+    if (!this.game.isOver()) {
+      if (showHover) {
+        const probeResult = this.game.place({
+          piece: this.state.selectedPiece.id,
+          flipped: this.state.selectedFlipped,
+          rotations: this.state.selectedRotations,
+          position,
+          probe: true,
+        });
+        if (probeResult.success) {
+          this.setState({highlightedPositions: probeResult.positions});
+        }
+      } else {
+        this.setState({highlightedPositions: []});
+      }
+    }
+  }
+
   getCurrentPlayerID = () => {
     const currentPlayer = this.game.currentPlayer();
     return !_.isNull(currentPlayer) ? currentPlayer.id : null;
@@ -110,45 +166,6 @@ class Arena extends Component {
 
   setSelectedRotations = rotations => {
     this.setState({selectedRotations: rotations});
-  }
-
-  placeSelectedPiece = position => {
-    const placement = {
-      piece: this.state.selectedPiece.id,
-      flipped: this.state.selectedFlipped,
-      rotations: this.state.selectedRotations,
-      position,
-    };
-    const probePlacement = _.merge(_.cloneDeep(placement), {probe: true});
-    const probeResult = this.game.place(probePlacement);
-    if (probeResult.success) {
-      socket.emit('take:turn', placement);
-      this.hoverPosition(false, position);
-    }
-  }
-
-  passTurn = () => {
-    const placement = 'PASS';
-    socket.emit('take:turn', placement);
-  }
-
-  hoverPosition = (showHover, position) => {
-    if (!this.game.isOver()) {
-      if (showHover) {
-        const placementResult = this.game.place({
-          piece: this.state.selectedPiece.id,
-          flipped: this.state.selectedFlipped,
-          rotations: this.state.selectedRotations,
-          position,
-          probe: true,
-        });
-        if (placementResult.success) {
-          this.setState({highlightedPositions: placementResult.positions});
-        }
-      } else {
-        this.setState({highlightedPositions: []});
-      }
-    }
   }
 
   render() {
@@ -187,9 +204,12 @@ class Arena extends Component {
           </div> :
           <b> The game is over! </b>
         }
-        <PlayerList players={players}
-                    playerScores={playerScores}
-                    currentPlayer={this.state.currentPlayer} />
+        <div className="game-scores">
+          <PlayerList players={players}
+                      playerScores={playerScores}
+                      currentPlayer={this.state.currentPlayer} />
+          <NewGameButton startNewGame={this.startNewGame} />
+        </div>
       </div>
     );
   }
@@ -507,6 +527,22 @@ class PlayerScore extends Component {
 
 PlayerScore.propTypes = {
   score: PropTypes.number.isRequired,
+};
+
+
+class NewGameButton extends Component {
+  render() {
+    return (
+      <div className="new-game-button"
+           onClick={this.props.startNewGame}>
+        New Game
+      </div>
+    );
+  }
+}
+
+NewGameButton.propTypes = {
+  startNewGame: PropTypes.func.isRequired,
 };
 
 

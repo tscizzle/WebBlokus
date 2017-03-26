@@ -7,33 +7,17 @@
 
 .banner-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin: 0 48px;
 
-  .banner-left {
-    display: flex;
-    align-items: center;
-
-    .banner-img {
-      height: 48px;
-      width: 48px;
-      margin-right: 32px;
-    }
-
-    .blokus-pronunciation {
-      margin-left: 16px;
-    }
+  .banner-img {
+    height: 48px;
+    width: 48px;
+    margin-right: 32px;
   }
 
-  .banner-right {
-    display: flex;
-    align-items: center;
-
-    .new-game {
-      @extend .nice-button;
-      margin: 0 0 0 16px;
-    }
+  .blokus-pronunciation {
+    margin-left: 16px;
   }
 }
 
@@ -142,6 +126,20 @@
         }
       }
     }
+  }
+}
+
+/////////////////
+// Game Scores //
+/////////////////
+
+.game-scores {
+  display: flex;
+  flex-direction: column;
+
+  .new-game-button {
+    @extend .nice-button;
+    margin: 16px 0 0 16px;
   }
 }
 
