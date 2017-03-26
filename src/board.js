@@ -1,9 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-import { playerShape,
-         pieceShape,
-         boardShape,
+import { boardShape,
          positionShape } from './blokusObjects.js';
 
 export class Board extends Component {
@@ -103,7 +101,7 @@ Cell.propTypes = {
 
 class PlayerCell extends Cell {
   render() {
-    const playerClass = "player-" + this.oneIndex(this.props.playerID);
+    const playerClass = 'player-' + this.oneIndex(this.props.playerID);
     const playerCellClasses = classNames('board-cell', playerClass, {'highlighted': this.props.highlighted});
     return (
       <div className={playerCellClasses}

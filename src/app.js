@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import io from 'socket.io-client';
 import _ from 'lodash';
 import classNames from 'classnames';
@@ -12,19 +13,20 @@ import { game, transform } from 'blokus';
 const { flip, rotate } = transform;
 import '../public/stylesheets/app.css';
 import { playerShape,
-         pieceShape,
-         boardShape,
-         positionShape } from './blokusObjects.js';
+         pieceShape   } from './blokusObjects.js';
 import { Board } from './board.js';
 
 
 class App extends Component {
   render() {
     return (
-      <div>
-        <Banner />
-        <Arena />
-      </div>
+      <Router>
+        <div>
+          <Route path="*" component={Banner} />
+          <Route exact path="/" component={GameSelection} />
+          <Route path="/:gameID" component={Arena} />
+        </div>
+      </Router>
     );
   }
 }
@@ -34,8 +36,72 @@ class Banner extends Component {
   render() {
     return (
       <div className="banner-container">
-        <h1> Blokus </h1>
-        <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
+        <div className="banner-left">
+          <h1> Blokus </h1>
+          <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
+        </div>
+        <div className="banner-right">
+          <Route path="/:gameID" component={DifferentGameButton} />
+        </div>
+      </div>
+    );
+  }
+}
+
+
+class DifferentGameButton extends Component {
+  navigateToGameSelection = () => {
+    this.props.history.push('/');
+  }
+
+  render() {
+    return (
+      <div className="different-game"
+           onClick={this.navigateToGameSelection}>
+        Different Game
+      </div>
+    );
+  }
+}
+
+
+class GameSelection extends Component {
+  constructor(props) {
+    super(props);
+    this.newGameID = Math.random().toString(36).substr(2, 10);
+    this.state = {
+      joinGameID: '',
+    };
+  }
+
+  navigateToJoinedGame = () => {
+    this.props.history.push(`/${this.state.joinGameID}`);
+  }
+
+  navigateToNewGame = () => {
+    this.props.history.push(`/${this.newGameID}`);
+  }
+
+  render() {
+    const joinGameClasses = classNames('join-game-button', {
+      'disabled': _.isEmpty(this.state.joinGameID),
+    });
+    return (
+      <div className="game-selection-container">
+        <div className="join-game-container">
+          <input className="join-game-input"
+                 type="text"
+                 value={this.state.joinGameID}
+                 onChange={e => this.setState({joinGameID: e.target.value})} />
+          <div className={joinGameClasses}
+               onClick={this.navigateToJoinedGame}>
+            Join Game
+          </div>
+        </div>
+        <div className="new-game-button"
+             onClick={this.navigateToNewGame}>
+          New Game
+        </div>
       </div>
     );
   }
@@ -52,10 +118,6 @@ class Arena extends Component {
     socket.on('take:turn', ({turns}) => {
       this.catchUpTurns(turns);
       this.updateStateAfterTurn();
-    });
-
-    socket.on('new:game', () => {
-      this.setState(this.getInitialGameState());
     });
   }
 
@@ -127,11 +189,6 @@ class Arena extends Component {
       socket.emit('take:turn', {turns});
       this.updateStateAfterTurn();
     }
-  }
-
-  startNewGame = () => {
-    socket.emit('new:game');
-    this.setState(this.getInitialGameState());
   }
 
   hoverPosition = (showHover, position) => {
@@ -206,12 +263,9 @@ class Arena extends Component {
           </div> :
           <b> The game is over! </b>
         }
-        <div className="game-scores">
-          <PlayerList players={players}
-                      playerScores={playerScores}
-                      currentPlayer={this.state.currentPlayer} />
-          <NewGameButton startNewGame={this.startNewGame} />
-        </div>
+        <PlayerList players={players}
+                    playerScores={playerScores}
+                    currentPlayer={this.state.currentPlayer} />
       </div>
     );
   }
@@ -387,22 +441,6 @@ class PlayerScore extends Component {
 
 PlayerScore.propTypes = {
   score: PropTypes.number.isRequired,
-};
-
-
-class NewGameButton extends Component {
-  render() {
-    return (
-      <div className="new-game-button"
-           onClick={this.props.startNewGame}>
-        New Game
-      </div>
-    );
-  }
-}
-
-NewGameButton.propTypes = {
-  startNewGame: PropTypes.func.isRequired,
 };
 
 

@@ -1,5 +1,6 @@
 .nice-button {
   display: flex;
+  justify-content: center;
   align-items: center;
   padding: 12px;
   border-radius: 5px;
@@ -8,8 +9,13 @@
   font-weight: bold;
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(.disabled) {
     opacity: 0.65;
+  }
+
+  &.disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 }
 

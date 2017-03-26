@@ -22,11 +22,6 @@ module.exports = function(io) {
       }
     });
 
-    socket.on('new:game', function() {
-      savedTurns = [];
-      socket.broadcast.emit('new:game');
-    });
-
   });
 
 };
