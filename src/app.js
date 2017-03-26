@@ -124,6 +124,7 @@ class Arena extends Component {
     if (passResult.success) {
       const turns = this.game.turns();
       socket.emit('take:turn', {turns});
+      this.updateStateAfterTurn();
     }
   }
 
