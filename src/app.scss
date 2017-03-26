@@ -65,11 +65,56 @@
 // Pieces //
 ////////////
 
+
 .piece-control-container {
   display: flex;
   flex-direction: column;
 
-  .piece-control-bottom-row {
+  .piece-list-container {
+    padding: 16px;
+
+    .piece-container {
+      padding: 8px;
+
+      &.selected-piece {
+        background-color: #DDD;
+      }
+
+      &:not(.selected-piece):hover {
+        background-color: #EEE;
+        cursor: pointer;
+      }
+
+      .board-container .board-cell {
+        width: $boardCellSize / 2;
+        height: $boardCellSize / 2;
+        border-size: $boardCellBorder / 2;
+      }
+    }
+  }
+
+  .piece-control-display {
+    display: flex;
+    justify-content: center;
+
+    .board-container {
+      background-color: transparent;
+      box-shadow: none;
+
+      .board-cell {
+        width: $boardCellSize * 2;
+        height: $boardCellSize * 2;
+        border-size: $boardCellBorder * 2;
+
+        &.empty-cell {
+          background-color: transparent;
+          border-color: transparent;
+        }
+      }
+    }
+  }
+
+  .piece-control-buttons {
     display: flex;
     justify-content: space-between;
 
@@ -88,46 +133,37 @@
       background-color: #EEE;
     }
   }
+}
 
-  .piece-list-container {
-    @include back-shadow(20px);
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    max-width: 400px;
-    padding: 16px;
-    background-color: white;
+.piece-list-container {
+  @include back-shadow(20px);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 4px;
+  background-color: white;
 
-    .piece-container {
-      padding: 8px;
+  .piece-container {
+    padding: 2px;
 
-      &.selected-piece {
-        background-color: #DDD;
-      }
+    .board-container {
+      background-color: transparent;
+      box-shadow: none;
 
-      &:not(.selected-piece):hover {
-        background-color: #EEE;
-        cursor: pointer;
-      }
+      .board-cell {
+        width: $boardCellSize / 3;
+        height: $boardCellSize / 3;
+        border-size: $boardCellBorder / 3;
 
-      .board-container {
-        background-color: transparent;
-        box-shadow: none;
-
-        .board-cell {
-          width: $boardCellSize / 2;
-          height: $boardCellSize / 2;
-          border-size: $boardCellBorder / 2;
-
-          &.empty-cell {
-            background-color: transparent;
-            border-color: transparent;
-          }
+        &.empty-cell {
+          background-color: transparent;
+          border-color: transparent;
         }
       }
     }
   }
 }
+
 
 /////////////////
 // Game Scores //

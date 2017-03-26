@@ -1,9 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-import { playerShape,
-         pieceShape,
-         boardShape,
+import { boardShape,
          positionShape } from './blokusObjects.js';
 
 export class Board extends Component {
