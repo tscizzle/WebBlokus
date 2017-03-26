@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 
-const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = true;
 
 
 const app = express();
@@ -14,7 +15,7 @@ var io = require('socket.io')(server);
 require('./sockets')(io);
 
 
-
+// serving assets
 
 if (isProduction) {
 

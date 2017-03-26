@@ -1,10 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import io from 'socket.io-client';
-const socket = io();
 import _ from 'lodash';
 import classNames from 'classnames';
 import { FaRotateLeft,
          FaArrowsH     } from 'react-icons/lib/fa';
+
+const socketServer = window.location.hostname === 'localhost' ? 'localhost:9000' : undefined;
+const socket = io(socketServer);
 
 import { game, transform } from 'blokus';
 const { flip, rotate } = transform;
