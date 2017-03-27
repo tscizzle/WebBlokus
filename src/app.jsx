@@ -17,7 +17,7 @@ const { flip, rotate } = transform;
 import '../public/stylesheets/app.css';
 import { playerShape,
          pieceShape } from './blokusObjects.js';
-import { Board } from './board.js';
+import { Board } from './board.jsx';
 
 
 class App extends Component {
