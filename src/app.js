@@ -5,6 +5,9 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import { FaRotateLeft,
          FaArrowsH     } from 'react-icons/lib/fa';
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 
 const socketServer = window.location.hostname === 'localhost' ? 'localhost:9000' : undefined;
 const socket = io(socketServer);
@@ -25,6 +28,7 @@ class App extends Component {
           <Route path="*" component={Banner} />
           <Route exact path="/" component={GameSelection} />
           <Route path="/:gameID" component={Arena} />
+          <Alert stack={true} position="top-right" effect="slide" />
         </div>
       </Router>
     );
@@ -79,6 +83,7 @@ class GameSelection extends Component {
   }
 
   navigateToNewGame = () => {
+    socket.emit('create:game', {gameID: this.newGameID});
     this.props.history.push(`/${this.newGameID}`);
   }
 
@@ -112,11 +117,24 @@ class Arena extends Component {
   constructor(props) {
     super(props);
     this.gameID = this.props.match.params.gameID;
-    this.state = this.getInitialGameState();
+    this.state = {
+      joined: true,
+      ...this.getInitialGameState(),
+    };
   }
 
   componentDidMount() {
-    socket.emit('joined:game', {gameID: this.gameID});
+    this.setState({joined: false});
+    socket.emit('join:game', {gameID: this.gameID});
+
+    socket.on('joined:game', () => {
+      this.setState({joined: true});
+    });
+
+    socket.on('nonexistant:game', ({gameID}) => {
+      Alert.warning(`Game ${gameID} does not exist`);
+      this.props.history.push('/');
+    });
 
     socket.on('take:turn', ({turns}) => {
       this.catchUpTurns(turns);
@@ -126,6 +144,9 @@ class Arena extends Component {
 
   componentWillUnmount() {
     socket.emit('left:game', {gameID: this.gameID});
+    socket.off('joined:game');
+    socket.off('nonexistant:game');
+    socket.off('take:turn');
   }
 
   getInitialGameState = () => {
@@ -243,7 +264,7 @@ class Arena extends Component {
     const currentPlayer = this.state.currentPlayer;
     const availablePieces = !_.isNull(currentPlayer) ? this.game.availablePieces({player: currentPlayer.id}) : [];
     const isOver = this.game.isOver();
-    return (
+    const gameView = (
       <div className="arena-container">
         <Board board={this.state.board}
                highlightedPositions={this.state.highlightedPositions}
@@ -273,6 +294,7 @@ class Arena extends Component {
                     currentPlayer={this.state.currentPlayer} />
       </div>
     );
+    return this.state.joined ? gameView : <div></div>;
   }
 }
 

@@ -9,16 +9,22 @@ module.exports = function(io) {
 
     let clientGameID;
 
-    socket.on('joined:game', function({gameID}) {
-      _.each(socket.rooms, room => socket.leave(room));
-      socket.join(gameID);
-      clientGameID = gameID;
+    socket.on('create:game', function({gameID}) {
+      savedGames[gameID] = [];
+    });
 
-      if (!_.has(savedGames, clientGameID)) {
-        savedGames[clientGameID] = [];
+    socket.on('join:game', function({gameID}) {
+      if (_.has(savedGames, gameID)) {
+        _.each(socket.rooms, room => socket.leave(room));
+        socket.join(gameID);
+        clientGameID = gameID;
+        socket.emit('joined:game');
+
+        const savedTurns = savedGames[clientGameID];
+        socket.emit('take:turn', {turns: savedTurns});
+      } else {
+        socket.emit('nonexistant:game', {gameID});
       }
-      const savedTurns = savedGames[clientGameID];
-      socket.emit('take:turn', {turns: savedTurns});
     });
 
     socket.on('take:turn', function({turns}) {
@@ -30,7 +36,7 @@ module.exports = function(io) {
       }
     });
 
-    socket.on('left:game', function({gameID}) {
+    socket.on('leave:game', function({gameID}) {
       socket.leave(gameID);
     });
 
