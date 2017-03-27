@@ -16,7 +16,7 @@ import { game, transform } from 'blokus';
 const { flip, rotate } = transform;
 import '../public/stylesheets/app.css';
 import { playerShape,
-         pieceShape   } from './blokusObjects.js';
+         pieceShape } from './blokusObjects.js';
 import { Board } from './board.js';
 
 
@@ -168,9 +168,11 @@ class Arena extends Component {
   updateStateAfterTurn = () => {
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
+    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
     this.setState({
       board,
       currentPlayer,
+      selectedPiece,
     });
   }
 
@@ -254,18 +256,26 @@ class Arena extends Component {
   }
 
   render() {
-    const players = this.game.players();
-    const playerScores = _.map(players, player => {
+    const currentPlayer = this.state.currentPlayer;
+    const players = _.map(this.game.players(), player => {
       return {
-        player: player.id,
+        id: player.id,
         score: this.game.numRemaining({player: player.id}),
+        pieces: !_.isNull(currentPlayer) ? this.game.availablePieces({player: player.id}) : [],
       };
     });
-    const currentPlayer = this.state.currentPlayer;
-    const availablePieces = !_.isNull(currentPlayer) ? this.game.availablePieces({player: currentPlayer.id}) : [];
+    const pieceLists = _.map(players, player => {
+      if (player.id !== currentPlayer.id) {
+        return <PieceList pieces={player.pieces}
+                          key={player.id} />
+      }
+    });
     const isOver = this.game.isOver();
     const gameView = (
       <div className="arena-container">
+        <div className="other-player-pieces">
+          { pieceLists }
+        </div>
         <Board board={this.state.board}
                highlightedPositions={this.state.highlightedPositions}
                placeSelectedPiece={this.placeSelectedPiece}
@@ -274,12 +284,15 @@ class Arena extends Component {
                getCurrentPlayerID={this.getCurrentPlayerID} />
         {!isOver ?
           <div className="piece-control-container">
-            <PieceList pieces={availablePieces}
+            <PieceList pieces={_.find(players, {id: currentPlayer.id}).pieces}
                        selectedPiece={this.state.selectedPiece}
-                       flipped={this.state.selectedFlipped}
-                       rotations={this.state.selectedRotations}
                        setSelectedPiece={this.setSelectedPiece} />
-            <div className="piece-control-bottom-row">
+            <div className="piece-control-display">
+              <Piece piece={this.state.selectedPiece}
+                     flipped={this.state.selectedFlipped}
+                     rotations={this.state.selectedRotations} />
+            </div>
+            <div className="piece-control-buttons">
               <PieceTransform flipped={this.state.selectedFlipped}
                               rotations={this.state.selectedRotations}
                               setSelectedFlipped={this.setSelectedFlipped}
@@ -289,9 +302,6 @@ class Arena extends Component {
           </div> :
           <b> The game is over! </b>
         }
-        <PlayerList players={players}
-                    playerScores={playerScores}
-                    currentPlayer={this.state.currentPlayer} />
       </div>
     );
     return this.state.joined ? gameView : <div></div>;
@@ -316,26 +326,28 @@ class PieceList extends Component {
 
 PieceList.propTypes = {
   pieces: PropTypes.arrayOf(pieceShape).isRequired,
-  selectedPiece: pieceShape.isRequired,
-  flipped: PropTypes.bool.isRequired,
-  rotations: PropTypes.number.isRequired,
-  setSelectedPiece: PropTypes.func.isRequired,
+  selectedPiece: pieceShape,
+  flipped: PropTypes.bool,
+  rotations: PropTypes.number,
+  setSelectedPiece: PropTypes.func,
 };
 
 
 class Piece extends Component {
   clickPiece = () => {
-    this.props.setSelectedPiece(this.props.piece);
+    if (this.props.setSelectedPiece) {
+      this.props.setSelectedPiece(this.props.piece);
+    }
   }
 
   render() {
     const playerID = this.props.piece.player;
     const shape = this.props.piece.shape;
     const flippedShape = this.props.flipped ? flip(shape) : shape;
-    const flippedRotatedShape = rotate(flippedShape, this.props.rotations);
+    const flippedRotatedShape = this.props.rotations ? rotate(flippedShape, this.props.rotations) : flippedShape;
     const shapeBoard = _.map(flippedRotatedShape, row => _.map(row, cell => cell === 'X' ? playerID : null));
     const pieceClasses = classNames('piece-container', {
-      'selected-piece': this.props.piece.id === this.props.selectedPiece.id,
+      'selected-piece': this.props.selectedPiece && this.props.piece.id === this.props.selectedPiece.id,
     });
     return (
       <div className={pieceClasses}
@@ -348,8 +360,8 @@ class Piece extends Component {
 
 Piece.propTypes = {
   piece: pieceShape.isRequired,
-  selectedPiece: pieceShape.isRequired,
-  setSelectedPiece: PropTypes.func.isRequired,
+  selectedPiece: pieceShape,
+  setSelectedPiece: PropTypes.func,
   flipped: PropTypes.bool,
   rotations: PropTypes.number,
 };
