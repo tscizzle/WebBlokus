@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 48px;
+  padding: 0 48px;
 
   .banner-left {
     display: flex;
@@ -30,7 +30,7 @@
     display: flex;
     align-items: center;
 
-    .different-game {
+    .leave-game-button {
       @extend .nice-button;
     }
   }
@@ -42,28 +42,36 @@
 
 .game-selection-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 500px;
+
+  .new-game-container {
+    padding: 50px;
+
+    .new-game-button {
+      @extend .nice-button;
+    }
+  }
 
   .join-game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 50px;
+    border-top: 1px solid #DDD;
 
     .join-game-input {
-      font-size: 1.5em;
+      @extend .nice-input;
+      width: 150px;
+      font-size: 1.2em;
     }
 
     .join-game-button {
       @extend .nice-button;
       margin: 16px 0 0 0;
     }
-  }
-
-  .new-game-button {
-    @extend .nice-button;
-    margin: 0 0 0 100px;
   }
 }
 

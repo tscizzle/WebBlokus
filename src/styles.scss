@@ -19,6 +19,29 @@
   }
 }
 
+.nice-input {
+  // standard
+  display: block;
+  margin: 0;
+  width: 100%;
+  font-family: sans-serif;
+  font-size: 18px;
+  appearance: none;
+  box-shadow: none;
+  border-radius: none;
+  // thick border styling
+  padding: 10px;
+  border: solid 5px #C9C9C9;
+  transition: border 0.3s;
+
+  &:focus {
+    // standard
+    outline: none;
+    // thick border styling
+    border: solid 5px #969696;
+  }
+}
+
 @mixin back-shadow($size) {
   box-shadow: 0 0 $size #AAA;
 }

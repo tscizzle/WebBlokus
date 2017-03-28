@@ -23,14 +23,18 @@ import { Board } from './board.js';
 class App extends Component {
   render() {
     return (
-      <Router>
-        <div>
-          <Route path="*" component={Banner} />
-          <Route exact path="/" component={GameSelection} />
-          <Route path="/:gameID" component={Arena} />
-          <Alert stack={true} position="top-right" effect="slide" />
-        </div>
-      </Router>
+      <div className="app-container">
+        <Router>
+          <div>
+            <Route path="*" component={Banner} />
+            <div className="content-container">
+              <Route exact path="/" component={GameSelection} />
+              <Route path="/:gameID" component={Arena} />
+            </div>
+          </div>
+        </Router>
+        <Alert stack={true} position="top-right" effect="slide" />
+      </div>
     );
   }
 }
@@ -45,7 +49,7 @@ class Banner extends Component {
           <span className="blokus-pronunciation"> [<b>blohk</b>-<i>koos</i>] </span>
         </div>
         <div className="banner-right">
-          <Route path="/:gameID" component={DifferentGameButton} />
+          <Route path="/:gameID" component={LeaveGameButton} />
         </div>
       </div>
     );
@@ -53,16 +57,16 @@ class Banner extends Component {
 }
 
 
-class DifferentGameButton extends Component {
+class LeaveGameButton extends Component {
   navigateToGameSelection = () => {
     this.props.history.push('/');
   }
 
   render() {
     return (
-      <div className="different-game"
+      <div className="leave-game-button"
            onClick={this.navigateToGameSelection}>
-        Different Game
+        Leave Game
       </div>
     );
   }
@@ -93,6 +97,12 @@ class GameSelection extends Component {
     });
     return (
       <div className="game-selection-container">
+        <div className="new-game-container">
+          <div className="new-game-button"
+               onClick={this.navigateToNewGame}>
+            New Game
+          </div>
+        </div>
         <div className="join-game-container">
           <input className="join-game-input"
                  type="text"
@@ -102,10 +112,6 @@ class GameSelection extends Component {
                onClick={this.navigateToJoinedGame}>
             Join Game
           </div>
-        </div>
-        <div className="new-game-button"
-             onClick={this.navigateToNewGame}>
-          New Game
         </div>
       </div>
     );
