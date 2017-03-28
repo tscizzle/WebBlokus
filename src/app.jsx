@@ -125,6 +125,7 @@ class Arena extends Component {
     this.gameID = this.props.match.params.gameID;
     this.state = {
       joined: true,
+      clientPlayer: null,
       ...this.getInitialGameState(),
     };
   }
@@ -133,8 +134,12 @@ class Arena extends Component {
     this.setState({joined: false});
     socket.emit('join:game', {gameID: this.gameID});
 
-    socket.on('joined:game', () => {
-      this.setState({joined: true});
+    // register socket listeners
+
+    socket.on('joined:game', ({player}) => {
+      const players = this.game.players();
+      const clientPlayer = _.find(players, {id: player}) || null;
+      this.setState({joined: true, clientPlayer});
     });
 
     socket.on('nonexistant:game', ({gameID}) => {
@@ -149,9 +154,14 @@ class Arena extends Component {
   }
 
   componentWillUnmount() {
-    socket.emit('left:game', {gameID: this.gameID});
+    socket.emit('leave:game');
+
+    // unregister socket listeners
+
     socket.off('joined:game');
+
     socket.off('nonexistant:game');
+
     socket.off('take:turn');
   }
 
@@ -203,17 +213,20 @@ class Arena extends Component {
   }
 
   placeSelectedPiece = position => {
-    const placement = {
-      piece: this.state.selectedPiece.id,
-      flipped: this.state.selectedFlipped,
-      rotations: this.state.selectedRotations,
-      position,
-    };
-    const placementResult = this.game.place(placement);
-    if (placementResult.success) {
-      socket.emit('take:turn', {turns: this.game.turns()});
-      this.updateStateAfterTurn();
-      this.hoverPosition(false, position);
+    if (this.state.currentPlayer && this.state.clientPlayer &&
+        this.state.currentPlayer.id === this.state.clientPlayer.id) {
+      const placement = {
+        piece: this.state.selectedPiece.id,
+        flipped: this.state.selectedFlipped,
+        rotations: this.state.selectedRotations,
+        position,
+      };
+      const placementResult = this.game.place(placement);
+      if (placementResult.success) {
+        socket.emit('take:turn', {turns: this.game.turns()});
+        this.updateStateAfterTurn();
+        this.hoverPosition(false, position);
+      }
     }
   }
 
@@ -262,6 +275,8 @@ class Arena extends Component {
   }
 
   render() {
+    const clientPlayer = this.state.clientPlayer;
+    const clientPlayerID = !_.isNull(clientPlayer) ? clientPlayer.id : null;
     const currentPlayer = this.state.currentPlayer;
     const players = _.map(this.game.players(), player => {
       return {
@@ -271,11 +286,12 @@ class Arena extends Component {
       };
     });
     const pieceLists = _.map(players, player => {
-      if (player.id !== currentPlayer.id) {
+      if (player.id !== clientPlayerID) {
         return <PieceList pieces={player.pieces}
                           key={player.id} />
       }
     });
+    const clientPlayerPieces = !_.isNull(clientPlayerID) ? _.find(players, {id: clientPlayerID}).pieces : [];
     const isOver = this.game.isOver();
     const gameView = (
       <div className="arena-container">
@@ -290,9 +306,11 @@ class Arena extends Component {
                getCurrentPlayerID={this.getCurrentPlayerID} />
         {!isOver ?
           <div className="piece-control-container">
-            <PieceList pieces={_.find(players, {id: currentPlayer.id}).pieces}
+            <PieceList pieces={clientPlayerPieces}
                        selectedPiece={this.state.selectedPiece}
                        setSelectedPiece={this.setSelectedPiece} />
+            {/* TODO: extract piece control into a component */}
+            {/* TODO: hide piece control when currentPlayer.id !== clientPlayer.id */}
             <div className="piece-control-display">
               <Piece piece={this.state.selectedPiece}
                      flipped={this.state.selectedFlipped}
