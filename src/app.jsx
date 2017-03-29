@@ -236,10 +236,14 @@ class Arena extends Component {
   }
 
   passTurn = () => {
-    const passResult = this.game.pass();
-    if (passResult.success) {
-      socket.emit('take:turn', {turns: this.game.turns()});
-      this.updateStateAfterTurn();
+    const currentPlayer = this.state.currentPlayer;
+    const clientPlayer = this.state.clientPlayer;
+    if (currentPlayer && clientPlayer && currentPlayer.id === clientPlayer.id) {
+      const passResult = this.game.pass();
+      if (passResult.success) {
+        socket.emit('take:turn', {turns: this.game.turns()});
+        this.updateStateAfterTurn();
+      }
     }
   }
 
