@@ -1,7 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-import { boardShape,
+import { playerShape,
+         boardShape,
          positionShape } from './blokusObjects.js';
 
 export class Board extends Component {
@@ -14,7 +15,7 @@ export class Board extends Component {
                   highlightedPositions={this.props.highlightedPositions}
                   placeSelectedPiece={this.props.placeSelectedPiece}
                   hoverPosition={this.props.hoverPosition}
-                  getCurrentPlayerID={this.props.getCurrentPlayerID}
+                  clientPlayer={this.props.clientPlayer}
                   key={rowIdx} />;
     });
     return <div className="board-container"> {rowList} </div>
@@ -27,7 +28,7 @@ Board.propTypes = {
   placeSelectedPiece: PropTypes.func,
   hoverPosition: PropTypes.func,
   isMainBoard: PropTypes.bool,
-  getCurrentPlayerID: PropTypes.func,
+  clientPlayer: playerShape,
 };
 
 
@@ -39,7 +40,7 @@ class Row extends Component {
                    highlightedPositions={this.props.highlightedPositions}
                    placeSelectedPiece={this.props.placeSelectedPiece}
                    hoverPosition={this.props.hoverPosition}
-                   getCurrentPlayerID={this.props.getCurrentPlayerID}
+                   clientPlayer={this.props.clientPlayer}
                    key={colIdx} />;
     });
     return <div className="board-row"> {cellList} </div>;
@@ -51,7 +52,7 @@ Row.propTypes = {
   rowIdx: PropTypes.number.isRequired,
   placeSelectedPiece: PropTypes.func,
   hoverPosition: PropTypes.func,
-  getCurrentPlayerID: PropTypes.func,
+  clientPlayer: playerShape,
 };
 
 
@@ -83,7 +84,7 @@ class Cell extends Component {
         : <EmptyCell placeSelectedPiece={this.placeSelectedPiece}
                      hoverPosition={this.hoverPosition}
                      highlighted={highlighted}
-                     getCurrentPlayerID={this.props.getCurrentPlayerID}
+                     clientPlayer={this.props.clientPlayer}
                      key={this.props.position.col} />
     );
   }
@@ -95,7 +96,7 @@ Cell.propTypes = {
   highlightedPositions: PropTypes.arrayOf(positionShape),
   placeSelectedPiece: PropTypes.func,
   hoverPosition: PropTypes.func,
-  getCurrentPlayerID: PropTypes.func,
+  clientPlayer: playerShape,
 };
 
 
@@ -123,7 +124,7 @@ PlayerCell.propTypes = {
 
 class EmptyCell extends Cell {
   render() {
-    const playerClass = this.props.getCurrentPlayerID ? 'player-' + this.oneIndex(this.props.getCurrentPlayerID()) : '';
+    const playerClass = this.props.clientPlayer ? 'player-' + this.oneIndex(this.props.clientPlayer.id) : '';
     const emptyCellClasses = classNames('board-cell', 'empty-cell', {
       'highlighted': this.props.highlighted,
       [playerClass]: this.props.highlighted,
@@ -142,5 +143,5 @@ EmptyCell.propTypes = {
   placeSelectedPiece: PropTypes.func,
   hoverPosition: PropTypes.func,
   highlighted: PropTypes.bool.isRequired,
-  getCurrentPlayerID: PropTypes.func,
+  clientPlayer: playerShape,
 };

@@ -190,12 +190,14 @@
 }
 
 .piece-list-container {
-  @include back-shadow(20px);
+  @include back-shadow(10px);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin: 16px;
   padding: 4px;
   background-color: white;
+  @include playerPieceListColors;
 
   .piece-container {
     padding: 2px;

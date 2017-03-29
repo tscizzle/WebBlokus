@@ -169,7 +169,8 @@ class Arena extends Component {
     this.game = game();
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
-    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
+    const clientPlayer = (this.state || {}).clientPlayer;
+    const selectedPiece = clientPlayer ? _.maxBy(this.game.availablePieces({player: clientPlayer.id}), 'id') : null;
     const arenaState = {
       board,
       currentPlayer,
@@ -184,7 +185,8 @@ class Arena extends Component {
   updateStateAfterTurn = () => {
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
-    const selectedPiece = _.maxBy(this.game.availablePieces({player: currentPlayer.id}), 'id');
+    const clientPlayer = this.state.clientPlayer;
+    const selectedPiece = clientPlayer ? _.maxBy(this.game.availablePieces({player: clientPlayer.id}), 'id') : null;
     this.setState({
       board,
       currentPlayer,
@@ -213,19 +215,22 @@ class Arena extends Component {
   }
 
   placeSelectedPiece = position => {
-    if (this.state.currentPlayer && this.state.clientPlayer &&
-        this.state.currentPlayer.id === this.state.clientPlayer.id) {
-      const placement = {
-        piece: this.state.selectedPiece.id,
-        flipped: this.state.selectedFlipped,
-        rotations: this.state.selectedRotations,
-        position,
-      };
-      const placementResult = this.game.place(placement);
-      if (placementResult.success) {
-        socket.emit('take:turn', {turns: this.game.turns()});
-        this.updateStateAfterTurn();
-        this.hoverPosition(false, position);
+    const currentPlayer = this.state.currentPlayer;
+    const clientPlayer = this.state.clientPlayer;
+    if (currentPlayer && clientPlayer && currentPlayer.id === clientPlayer.id) {
+      if (this.state.selectedPiece) {
+        const placement = {
+          piece: this.state.selectedPiece.id,
+          flipped: this.state.selectedFlipped,
+          rotations: this.state.selectedRotations,
+          position,
+        };
+        const placementResult = this.game.place(placement);
+        if (placementResult.success) {
+          socket.emit('take:turn', {turns: this.game.turns()});
+          this.updateStateAfterTurn();
+          this.hoverPosition(false, position);
+        }
       }
     }
   }
@@ -240,26 +245,23 @@ class Arena extends Component {
 
   hoverPosition = (showHover, position) => {
     if (!this.game.isOver()) {
-      if (showHover) {
-        const probeResult = this.game.place({
-          piece: this.state.selectedPiece.id,
-          flipped: this.state.selectedFlipped,
-          rotations: this.state.selectedRotations,
-          position,
-          probe: true,
-        });
-        if (probeResult.success) {
-          this.setState({highlightedPositions: probeResult.positions});
+      if (this.state.selectedPiece) {
+        if (showHover) {
+          const probeResult = this.game.place({
+            piece: this.state.selectedPiece.id,
+            flipped: this.state.selectedFlipped,
+            rotations: this.state.selectedRotations,
+            position,
+            probe: true,
+          });
+          if (probeResult.success) {
+            this.setState({highlightedPositions: probeResult.positions});
+          }
+        } else {
+          this.setState({highlightedPositions: []});
         }
-      } else {
-        this.setState({highlightedPositions: []});
       }
     }
-  }
-
-  getCurrentPlayerID = () => {
-    const currentPlayer = this.game.currentPlayer();
-    return !_.isNull(currentPlayer) ? currentPlayer.id : null;
   }
 
   setSelectedPiece = piece => {
@@ -288,6 +290,8 @@ class Arena extends Component {
     const pieceLists = _.map(players, player => {
       if (player.id !== clientPlayerID) {
         return <PieceList pieces={player.pieces}
+                          player={player}
+                          currentPlayer={this.state.currentPlayer}
                           key={player.id} />
       }
     });
@@ -303,26 +307,32 @@ class Arena extends Component {
                placeSelectedPiece={this.placeSelectedPiece}
                hoverPosition={this.hoverPosition}
                isMainBoard={true}
-               getCurrentPlayerID={this.getCurrentPlayerID} />
+               clientPlayer={this.state.clientPlayer} />
         {!isOver ?
           <div className="piece-control-container">
             <PieceList pieces={clientPlayerPieces}
                        selectedPiece={this.state.selectedPiece}
-                       setSelectedPiece={this.setSelectedPiece} />
+                       setSelectedPiece={this.setSelectedPiece}
+                       player={this.state.clientPlayer}
+                       currentPlayer={this.state.currentPlayer} />
             {/* TODO: extract piece control into a component */}
             {/* TODO: hide piece control when currentPlayer.id !== clientPlayer.id */}
-            <div className="piece-control-display">
-              <Piece piece={this.state.selectedPiece}
-                     flipped={this.state.selectedFlipped}
-                     rotations={this.state.selectedRotations} />
-            </div>
-            <div className="piece-control-buttons">
-              <PieceTransform flipped={this.state.selectedFlipped}
-                              rotations={this.state.selectedRotations}
-                              setSelectedFlipped={this.setSelectedFlipped}
-                              setSelectedRotations={this.setSelectedRotations} />
-              <PassButton passTurn={this.passTurn} />
-            </div>
+            {this.state.selectedPiece &&
+              <div>
+                <div className="piece-control-display">
+                  <Piece piece={this.state.selectedPiece}
+                         flipped={this.state.selectedFlipped}
+                         rotations={this.state.selectedRotations} />
+                </div>
+                <div className="piece-control-buttons">
+                  <PieceTransform flipped={this.state.selectedFlipped}
+                                  rotations={this.state.selectedRotations}
+                                  setSelectedFlipped={this.setSelectedFlipped}
+                                  setSelectedRotations={this.setSelectedRotations} />
+                  <PassButton passTurn={this.passTurn} />
+                </div>
+              </div>
+            }
           </div> :
           <b> The game is over! </b>
         }
@@ -334,26 +344,32 @@ class Arena extends Component {
 
 
 class PieceList extends Component {
+  oneIndex = n => n + 1;
+
   render() {
     const sortedPieces = _.sortBy(this.props.pieces, piece => -piece.id);
     const pieceList = _.map(sortedPieces, piece => {
       return <Piece piece={piece}
                     selectedPiece={this.props.selectedPiece}
-                    flipped={this.props.flipped}
-                    rotations={this.props.rotations}
                     setSelectedPiece={this.props.setSelectedPiece}
                     key={piece.id} />;
     });
-    return <div className="piece-list-container"> {pieceList} </div>
+    const playerClass = this.props.player ? 'player-' + this.oneIndex(this.props.player.id) : '';
+    const pieceListClasses = classNames('piece-list-container', playerClass, {
+      'current-player-piece-list': (this.props.player || {}).id === this.props.currentPlayer.id,
+    });
+    return <div className={pieceListClasses}> {pieceList} </div>
   }
 }
 
 PieceList.propTypes = {
   pieces: PropTypes.arrayOf(pieceShape).isRequired,
   selectedPiece: pieceShape,
-  flipped: PropTypes.bool,
-  rotations: PropTypes.number,
   setSelectedPiece: PropTypes.func,
+  player: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  }),
+  currentPlayer: playerShape.isRequired,
 };
 
 

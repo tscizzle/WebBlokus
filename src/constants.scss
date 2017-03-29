@@ -56,3 +56,11 @@ $boardCellBorder: 1px;
     }
   }
 }
+
+@mixin playerPieceListColors {
+  @for $i from 1 through length($playerColors) {
+    &.player-#{$i}.current-player-piece-list {
+      border: 5px solid nth($embedColors, $i);
+    }
+  }
+}
