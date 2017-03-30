@@ -259,9 +259,7 @@ class Arena extends Component {
             position,
             probe: true,
           });
-          if (probeResult.success) {
-            this.setState({highlightedPositions: probeResult.positions});
-          }
+          this.setState({highlightedPositions: probeResult.positions});
         } else {
           this.setState({highlightedPositions: []});
         }
