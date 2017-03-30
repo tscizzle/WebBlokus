@@ -249,9 +249,10 @@ class Arena extends Component {
 
   hoverPosition = (showHover, position) => {
     if (!this.game.isOver()) {
-      if (this.state.selectedPiece) {
+      if (this.state.selectedPiece && this.state.clientPlayer) {
         if (showHover) {
           const probeResult = this.game.place({
+            player: this.state.clientPlayer.id,
             piece: this.state.selectedPiece.id,
             flipped: this.state.selectedFlipped,
             rotations: this.state.selectedRotations,
