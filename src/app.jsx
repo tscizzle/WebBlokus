@@ -319,7 +319,6 @@ class Arena extends Component {
                        player={this.state.clientPlayer}
                        currentPlayer={this.state.currentPlayer} />
             {/* TODO: extract piece control into a component */}
-            {/* TODO: hide piece control when currentPlayer.id !== clientPlayer.id */}
             {this.state.selectedPiece &&
               <div>
                 <div className="piece-control-display">
@@ -347,6 +346,10 @@ class Arena extends Component {
 
 
 class PieceList extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState);
+  }
+
   oneIndex = n => n + 1;
 
   render() {
