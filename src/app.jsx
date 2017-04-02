@@ -186,7 +186,15 @@ class Arena extends Component {
     const board = this.game.board();
     const currentPlayer = this.game.currentPlayer();
     const clientPlayer = this.state.clientPlayer;
-    const selectedPiece = clientPlayer ? _.maxBy(this.game.availablePieces({player: clientPlayer.id}), 'id') : null;
+    let selectedPiece = this.state.selectedPiece || {};
+    if (clientPlayer) {
+      const availablePieceIDs = _.map(this.game.availablePieces({player: clientPlayer.id}), 'id');
+      if (!_.includes(availablePieceIDs, selectedPiece.id)) {
+        selectedPiece = _.maxBy(this.game.availablePieces({player: clientPlayer.id}), 'id');
+      }
+    } else {
+      selectedPiece = null;
+    }
     this.setState({
       board,
       currentPlayer,
