@@ -290,25 +290,23 @@ class Arena extends Component {
   render() {
     const clientPlayer = this.state.clientPlayer;
     const clientPlayerID = !_.isNull(clientPlayer) ? clientPlayer.id : null;
-    const currentPlayer = this.state.currentPlayer;
+    const isOver = this.game.isOver();
     const players = _.map(this.game.players(), player => {
-      return {
-        id: player.id,
+      return _.merge(player, {
         score: this.game.numRemaining({player: player.id}),
         pieces: !_.isNull(player) ? this.game.availablePieces({player: player.id}) : [],
-      };
+      });
     });
     const pieceLists = _.map(players, player => {
-      if (player.id !== clientPlayerID) {
+      if (player.id !== clientPlayerID || isOver) {
         return <PieceList pieces={player.pieces}
                           player={player}
                           currentPlayer={this.state.currentPlayer}
+                          isOver={isOver}
                           key={player.id} />
       }
     });
     const clientPlayerPieces = !_.isNull(clientPlayerID) ? _.find(players, {id: clientPlayerID}).pieces : [];
-    const isOver = this.game.isOver();
-    console.log('isOver', isOver);
     const gameView = (
       <div className="arena-container">
         <div className="other-player-pieces">
@@ -326,8 +324,8 @@ class Arena extends Component {
                        selectedPiece={this.state.selectedPiece}
                        setSelectedPiece={this.setSelectedPiece}
                        player={this.state.clientPlayer}
-                       currentPlayer={this.state.currentPlayer} />
-            {/* TODO: extract piece control into a component */}
+                       currentPlayer={this.state.currentPlayer}
+                       isOver={isOver} />
             {this.state.selectedPiece &&
               <div>
                 <div className="piece-control-display">
@@ -345,7 +343,9 @@ class Arena extends Component {
               </div>
             }
           </div> :
-          <b> The game is over! </b>
+          <div className="game-over">
+            <b> The game is over! </b>
+          </div>
         }
       </div>
     );
@@ -375,7 +375,14 @@ class PieceList extends Component {
     const pieceListClasses = classNames('piece-list-container', playerClass, {
       'current-player-piece-list': currentPlayerPieceList,
     });
-    return <div className={pieceListClasses}> {pieceList} </div>
+    return (
+      <div className={pieceListClasses}>
+        {pieceList}
+        {this.props.isOver && _.isNumber(this.props.player.score) &&
+          <PlayerScore score={this.props.player.score} />
+        }
+      </div>
+    );
   }
 }
 
@@ -383,10 +390,9 @@ PieceList.propTypes = {
   pieces: PropTypes.arrayOf(pieceShape).isRequired,
   selectedPiece: pieceShape,
   setSelectedPiece: PropTypes.func,
-  player: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-  }),
+  player: playerShape,
   currentPlayer: playerShape,
+  isOver: PropTypes.bool.isRequired,
 };
 
 
