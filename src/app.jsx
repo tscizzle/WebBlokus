@@ -295,7 +295,7 @@ class Arena extends Component {
       return {
         id: player.id,
         score: this.game.numRemaining({player: player.id}),
-        pieces: !_.isNull(currentPlayer) ? this.game.availablePieces({player: player.id}) : [],
+        pieces: !_.isNull(player) ? this.game.availablePieces({player: player.id}) : [],
       };
     });
     const pieceLists = _.map(players, player => {
@@ -308,6 +308,7 @@ class Arena extends Component {
     });
     const clientPlayerPieces = !_.isNull(clientPlayerID) ? _.find(players, {id: clientPlayerID}).pieces : [];
     const isOver = this.game.isOver();
+    console.log('isOver', isOver);
     const gameView = (
       <div className="arena-container">
         <div className="other-player-pieces">
@@ -362,6 +363,7 @@ class PieceList extends Component {
 
   render() {
     const sortedPieces = _.sortBy(this.props.pieces, piece => -piece.id);
+    const currentPlayer = this.props.currentPlayer;
     const pieceList = _.map(sortedPieces, piece => {
       return <Piece piece={piece}
                     selectedPiece={this.props.selectedPiece}
@@ -369,8 +371,9 @@ class PieceList extends Component {
                     key={piece.id} />;
     });
     const playerClass = this.props.player ? 'player-' + this.oneIndex(this.props.player.id) : '';
+    const currentPlayerPieceList = currentPlayer && (this.props.player || {}).id === currentPlayer.id;
     const pieceListClasses = classNames('piece-list-container', playerClass, {
-      'current-player-piece-list': (this.props.player || {}).id === this.props.currentPlayer.id,
+      'current-player-piece-list': currentPlayerPieceList,
     });
     return <div className={pieceListClasses}> {pieceList} </div>
   }
@@ -383,7 +386,7 @@ PieceList.propTypes = {
   player: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
-  currentPlayer: playerShape.isRequired,
+  currentPlayer: playerShape,
 };
 
 
